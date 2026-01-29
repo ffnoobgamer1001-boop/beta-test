@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coaching App</title>
+    <script src="data.js"></script>
+    <style>
+        /* Modern Mobile-First CSS */
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        
+        /* Header */
+        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; }
+        .back-btn { font-size: 24px; margin-right: 15px; cursor: pointer; display: none; } /* Hidden by default */
+        h1 { margin: 0; font-size: 18px; flex-grow: 1; }
+
+        /* Grid Layout for Subjects */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s; }
+        .card:active { transform: scale(0.98); }
+        .card-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .card-title { font-weight: 600; font-size: 14px; }
+
+        /* Video List Style */
+        .list { display: flex; flex-direction: column; padding: 10px; }
+        .video-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .play-icon { margin-right: 15px; color: var(--primary); font-size: 20px; }
+        
+        /* Video Player Area */
+        .player-container { display: none; flex-direction: column; height: 100vh; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .pdf-wrapper { flex-grow: 1; background: #fff; position: relative; }
+        .pdf-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+        /* Security Warning */
+        #security-lock { position: fixed; top:0; left:0; width:100%; height:100%; background:black; color:white; display:flex; justify-content:center; align-items:center; z-index: 9999; display: none; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Security Overlay -->
+    <div id="security-lock">
+        <div>
+            <h1>🚫 Access Denied</h1>
+            <p>You can only view this content inside the Official Coaching App.</p>
+        </div>
+    </div>
+
+    <!-- Main App UI -->
+    <div id="app-ui">
+        <header>
+            <span class="back-btn" onclick="goBack()">&#8592;</span>
+            <h1 id="page-title">My Subjects</h1>
+        </header>
+
+        <!-- View 1: Subjects Grid -->
+        <div id="view-subjects" class="grid"></div>
+
+        <!-- View 2: Video List -->
+        <div id="view-videos" class="list" style="display:none;"></div>
+
+        <!-- View 3: Player -->
+        <div id="view-player" class="player-container">
+            <div class="video-wrapper">
+                <iframe id="yt-player" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="pdf-wrapper">
+                <iframe id="pdf-player" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SECURITY CHECK ---
+        // Change 'MyCoachingAppv1' to match the UserAgent string in your Android Code
+        const REQUIRED_UA = "MyCoachingAppv1"; 
+        const userAgent = navigator.userAgent;
+
+        // Uncomment the lines below to enable strict security
+        /*
+        if (!userAgent.includes(REQUIRED_UA)) {
+             document.getElementById('app-ui').style.display = 'none';
+             document.getElementById('security-lock').style.display = 'flex';
+             throw new Error("Security Violation"); 
+        }
+        */
+
+        // --- 2. APP LOGIC ---
+        const viewSubjects = document.getElementById('view-subjects');
+        const viewVideos = document.getElementById('view-videos');
+        const viewPlayer = document.getElementById('view-player');
+        const pageTitle = document.getElementById('page-title');
+        const backBtn = document.querySelector('.back-btn');
+
+        let currentSubject = null;
+
+        // Initialize App
+        function init() {
+            renderSubjects();
+        }
+
+        // Render Subject Grid
+        function renderSubjects() {
+            viewSubjects.innerHTML = '';
+            subjects.forEach(sub => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<span class="card-icon">${sub.icon}</span><span class="card-title">${sub.name}</span>`;
+                card.onclick = () => openSubject(sub);
+                viewSubjects.appendChild(card);
+            });
+            showView('subjects');
+        }
+
+        // Open Subject (Show Video List)
+        function openSubject(subject) {
+            currentSubject = subject;
+            pageTitle.innerText = subject.name;
+            viewVideos.innerHTML = '';
+            
+            subject.videos.forEach(video => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                item.innerHTML = `<span class="play-icon">▶</span><span>${video.title}</span>`;
+                item.onclick = () => playLecture(video);
+                viewVideos.appendChild(item);
+            });
+            showView('videos');
+        }
+
+        // Play Lecture (Video + PDF)
+        function playLecture(video) {
+            pageTitle.innerText = "Now Playing";
+            
+            // YouTube Embed
+            document.getElementById('yt-player').src = `https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`;
+            
+            // Google Drive PDF Embed (Preview Mode)
+            document.getElementById('pdf-player').src = `https://drive.google.com/file/d/${video.pdfId}/preview`;
+            
+            showView('player');
+        }
+
+        // Navigation Logic
+        function showView(viewName) {
+            viewSubjects.style.display = 'none';
+            viewVideos.style.display = 'none';
+            viewPlayer.style.display = 'none';
+            backBtn.style.display = 'none';
+
+            if(viewName === 'subjects') {
+                viewSubjects.style.display = 'grid';
+                pageTitle.innerText = "My Subjects";
+            } else if (viewName === 'videos') {
+                viewVideos.style.display = 'flex';
+                backBtn.style.display = 'block';
+            } else if (viewName === 'player') {
+                viewPlayer.style.display = 'flex';
+                backBtn.style.display = 'block';
+            }
+        }
+
+        function goBack() {
+            if (viewPlayer.style.display === 'flex') {
+                // Stop video when going back
+                document.getElementById('yt-player').src = "";
+                openSubject(currentSubject);
+            } else if (viewVideos.style.display === 'flex') {
+                currentSubject = null;
+                renderSubjects();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

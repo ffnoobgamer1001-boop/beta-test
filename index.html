@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #93c5fd; }
+        .error { color: red; margin-top: 10px; font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Student Access</h2>
+        <p>Enter your one-time passkey</p>
+        <input type="text" id="passkey" placeholder="Enter Key (e.g. STUD123)">
+        <button onclick="verify()" id="btn">Enter Class</button>
+        <p class="error" id="msg">Invalid or Expired Key</p>
+    </div>
+
+    <script>
+        // Check if already logged in locally
+        if(localStorage.getItem('isVerified') === 'true') {
+            window.location.href = 'app.html';
+        }
+
+        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT URL
+        const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+
+        function verify() {
+            const key = document.getElementById('passkey').value.trim();
+            const btn = document.getElementById('btn');
+            const msg = document.getElementById('msg');
+            
+            if(!key) return;
+
+            btn.disabled = true;
+            btn.innerText = "Checking...";
+            msg.style.display = 'none';
+
+            fetch(SCRIPT_URL + "?passkey=" + key)
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    // 1. Save to browser storage
+                    localStorage.setItem('isVerified', 'true');
+                    
+                    // 2. Tell Android App (if running inside app) to save permanently
+                    if(typeof Android !== 'undefined') {
+                        Android.onLoginSuccess();
+                    }
+
+                    // 3. Go to content
+                    window.location.href = 'app.html';
+                } else {
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerText = "Enter Class";
+                }
+            })
+            .catch(err => {
+                alert("Network Error");
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
