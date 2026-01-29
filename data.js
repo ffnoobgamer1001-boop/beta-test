@@ -6,7 +6,7 @@ const subjects = [
         videos: [
             {
                 title: "Lecture 1: Basic Electronics",
-                youtubeId: "dQw4w9WgXcQ", // The ID after 'v=' in YouTube URL
+                youtubeId: "jHbipG3aft8", // The ID after 'v=' in YouTube URL
                 pdfId: "1234567890abcdefghijk" // The ID from Google Drive share link
             },
             {
@@ -29,4 +29,5 @@ const subjects = [
         ]
     }
     // Copy paste blocks above to add more subjects
+
 ];
