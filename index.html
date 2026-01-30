@@ -1,279 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- ... (Head and CSS same as before) ... -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coaching App</title>
-    <!-- Keep your CSS styles here as they were -->
+    <title>Student Login</title>
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 85%; max-width: 320px; text-align: center; }
+        h2 { margin-top: 0; color: #1e293b; }
+        p { color: #64748b; font-size: 14px; margin-bottom: 20px; }
         
-        /* HEADER */
-        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
-        .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
-        h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
-
-        /* VIEW CONTAINERS */
-        .view-container { padding: 15px; display: none; animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* GRID (Subjects) */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; cursor: pointer; transition: 0.1s; }
-        .card:active { transform: scale(0.96); background: #f8fafc; }
-        .card-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-        .card-title { font-weight: 600; font-size: 14px; color: #334155; }
-
-        /* LISTS (Units & Lectures) */
-        .list-btn { 
-            width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: none; 
-            text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.03); font-size: 15px; font-weight: 500; color: #334155;
-            cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9;
+        input { 
+            width: 100%; padding: 14px; margin-bottom: 15px; 
+            border: 2px solid #e2e8f0; border-radius: 8px; 
+            box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s;
         }
-        .list-btn:active { background: #f8fafc; border-color: #cbd5e1; }
-        .arrow { color: #cbd5e1; font-size: 18px; }
-        .icon-prefix { margin-right: 10px; }
-
-        /* SPECIAL BUTTONS */
-        .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
-        .notes-section-btn .arrow { color: #fda4af; }
-
-        /* VIDEO PLAYER */
-        .player-view { display: none; flex-direction: column; height: 100vh; background: black; }
-        .video-wrapper { position: relative; width: 100%; height: 100%; background: black; display: flex; justify-content: center; align-items: center;}
+        input:focus { border-color: #2563eb; }
         
-        /* PDF VIEWER */
-        .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
-        iframe.doc-frame { width: 100%; height: 100%; border: none; flex-grow: 1; }
-
-        /* LOADING */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
-        .spinner { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        button { 
+            width: 100%; padding: 14px; background: #2563eb; color: white; 
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s; 
+        }
+        button:active { transform: scale(0.98); background: #1d4ed8; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        .error { color: #ef4444; margin-top: 15px; font-size: 14px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px;}
+        .footer { margin-top: 20px; font-size: 12px; color: #94a3b8; }
     </style>
 </head>
 <body>
-
-    <!-- LOADING SCREEN -->
-    <div id="loader">
-        <div class="spinner"></div>
-        <div style="color:#64748b; font-size:14px;">Loading Batch Content...</div>
-    </div>
-
-    <!-- MAIN APP INTERFACE -->
-    <div id="app-interface" style="display:none;">
-        <header>
-            <span class="back-btn" onclick="handleBack()">&#8592;</span>
-            <h1 id="header-title">Subjects</h1>
-            <span class="batch-badge" id="batch-name-display">...</span>
-        </header>
-
-        <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
-        <div id="view-units" class="view-container"></div>
-        <div id="view-lectures" class="view-container"></div>
-        <div id="view-notes" class="view-container"></div>
-    </div>
-
-    <!-- VIDEO PLAYER -->
-    <div id="view-player" class="player-view">
-        <div class="video-wrapper" id="video-container"></div>
-    </div>
-
-    <!-- PDF VIEWER -->
-    <div id="view-pdf" class="pdf-view">
-        <iframe id="pdf-frame" class="doc-frame" src=""></iframe>
+    <div class="card">
+        <h2>Welcome</h2>
+        <p>Enter your unique Passkey to access your batch content.</p>
+        
+        <input type="text" id="passkey" placeholder="Enter Passkey (e.g. CIV4-001)" autocomplete="off">
+        <button onclick="verify()" id="btn">Enter Classroom</button>
+        
+        <div class="error" id="msg"></div>
+        <div class="footer">Secure Student Portal</div>
     </div>
 
     <script>
-        // --- 1. DYNAMIC DATA LOADER ---
-        const userBatch = localStorage.getItem('userBatch');
-        
-        if (!userBatch) {
-            window.location.href = 'index.html'; 
-        } else {
-            const script = document.createElement('script');
-            script.src = userBatch.toLowerCase() + ".js"; 
-            
-            script.onload = () => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('app-interface').style.display = 'block';
-                if(typeof batchName !== 'undefined') {
-                    document.getElementById('batch-name-display').innerText = batchName;
-                }
-                renderSubjects();
-            };
-            
-            script.onerror = () => {
-                document.getElementById('loader').innerHTML = "<p style='color:red'>Error loading batch data (" + userBatch + ").<br>Contact Admin.</p>";
-            };
-            
-            document.head.appendChild(script);
+        // 1. AUTO-LOGIN: Check if student is already verified
+        if(localStorage.getItem('isVerified') === 'true') {
+            window.location.href = 'app.html';
         }
 
-        // --- 2. STATE MANAGEMENT ---
-        const views = ['view-subjects', 'view-units', 'view-lectures', 'view-notes'];
-        const titleEl = document.getElementById('header-title');
-        const backBtn = document.querySelector('.back-btn');
-        let currentSubject = null;
+        // TODO: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_YOUR_SCRIPT_ID_HERE/exec";
 
-        // --- 3. HELPER: CONTROL ORIENTATION ---
-        function setOrientation(mode) {
-            if(typeof Android !== 'undefined') {
-                // calls Java to rotate screen
-                Android.setLandscape(mode === 'LANDSCAPE');
+        function verify() {
+            const keyInput = document.getElementById('passkey');
+            const key = keyInput.value.trim();
+            const btn = document.getElementById('btn');
+            const msg = document.getElementById('msg');
+            
+            if(!key) {
+                showError("Please enter a passkey");
+                return;
             }
-        }
 
-        // --- 4. RENDERERS ---
+            // UI Loading State
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+            msg.style.display = 'none';
 
-        function renderSubjects() {
-            switchView('view-subjects', 'Subjects');
-            const container = document.getElementById('view-subjects');
-            container.innerHTML = '';
-            subjects.forEach(sub => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `<span class="card-icon">${sub.icon}</span><div class="card-title">${sub.name}</div>`;
-                card.onclick = () => openSubject(sub);
-                container.appendChild(card);
+            fetch(SCRIPT_URL + "?passkey=" + key)
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    // SUCCESS: Save credentials and redirect
+                    localStorage.setItem('isVerified', 'true');
+                    localStorage.setItem('userBatch', data.batch); // Saves "CIV4", "EC2", etc.
+                    
+                    // Notify Android App (if running in app)
+                    if(typeof Android !== 'undefined') {
+                        Android.onLoginSuccess();
+                    }
+
+                    window.location.href = 'app.html';
+                } else {
+                    // FAIL
+                    showError("Invalid or Expired Passkey");
+                    btn.disabled = false;
+                    btn.innerText = "Enter Classroom";
+                }
+            })
+            .catch(err => {
+                showError("Connection Error. Check Internet.");
+                btn.disabled = false;
+                btn.innerText = "Enter Classroom";
             });
         }
 
-        function openSubject(sub) {
-            currentSubject = sub;
-            switchView('view-units', sub.name);
-            const container = document.getElementById('view-units');
-            container.innerHTML = '';
-
-            if(sub.units && sub.units.length > 0) {
-                sub.units.forEach(unit => {
-                    const btn = document.createElement('button');
-                    btn.className = 'list-btn';
-                    btn.innerHTML = `<span><span class="icon-prefix">📂</span>${unit.name}</span> <span class="arrow">›</span>`;
-                    btn.onclick = () => openUnit(unit);
-                    container.appendChild(btn);
-                });
-            } else {
-                container.innerHTML = "<div style='text-align:center; color:#94a3b8; margin-top:20px'>No units added yet.</div>";
-            }
-
-            const notesBtn = document.createElement('button');
-            notesBtn.className = 'list-btn notes-section-btn';
-            notesBtn.innerHTML = `<span><span class="icon-prefix">📄</span>PDF Notes Section</span> <span class="arrow">›</span>`;
-            notesBtn.onclick = () => openNotesList(sub);
-            container.appendChild(notesBtn);
-        }
-
-        function openUnit(unit) {
-            switchView('view-lectures', unit.name);
-            const container = document.getElementById('view-lectures');
-            container.innerHTML = '';
-
-            if(unit.lectures && unit.lectures.length > 0) {
-                unit.lectures.forEach(lec => {
-                    const btn = document.createElement('button');
-                    btn.className = 'list-btn';
-                    btn.innerHTML = `<span><span class="icon-prefix">▶</span>${lec.title}</span>`;
-                    btn.onclick = () => playVideo(lec);
-                    container.appendChild(btn);
-                });
-            } else {
-                container.innerHTML = "<div style='text-align:center; color:#94a3b8; margin-top:20px'>No lectures found.</div>";
-            }
-        }
-
-        function openNotesList(sub) {
-            switchView('view-notes', 'PDF Notes');
-            const container = document.getElementById('view-notes');
-            container.innerHTML = '';
-
-            if(sub.notes && sub.notes.length > 0) {
-                sub.notes.forEach(note => {
-                    const btn = document.createElement('button');
-                    btn.className = 'list-btn';
-                    btn.innerHTML = `<span><span class="icon-prefix">📑</span>${note.title}</span>`;
-                    btn.onclick = () => openPdf(note.pdfId);
-                    container.appendChild(btn);
-                });
-            } else {
-                container.innerHTML = "<div style='text-align:center; color:#94a3b8; margin-top:20px'>No notes available.</div>";
-            }
-        }
-
-        // --- 5. PLAYERS ---
-
-        function playVideo(lec) {
-            const playerDiv = document.getElementById('view-player');
-            const container = document.getElementById('video-container');
-            
-            // HIDE UI
-            document.getElementById('app-interface').style.display = 'none';
-            playerDiv.style.display = 'flex';
-
-            // FORCE LANDSCAPE
-            setOrientation('LANDSCAPE');
-
-            // Embed ScreenPal
-            container.innerHTML = `
-                <iframe 
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
-                    scrolling="no" 
-                    src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
-                    allowfullscreen="true">
-                </iframe>`;
-        }
-
-        function openPdf(pdfId) {
-            const pdfDiv = document.getElementById('view-pdf');
-            const frame = document.getElementById('pdf-frame');
-
-            // HIDE UI
-            document.getElementById('app-interface').style.display = 'none';
-            pdfDiv.style.display = 'flex';
-            
-            // FORCE LANDSCAPE
-            setOrientation('LANDSCAPE');
-
-            frame.src = `https://drive.google.com/file/d/${pdfId}/preview`;
-        }
-
-        // --- 6. NAVIGATION LOGIC ---
-
-        function switchView(viewId, title) {
-            views.forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById(viewId).style.display = (viewId === 'view-subjects') ? 'grid' : 'block';
-            titleEl.innerText = title;
-            backBtn.style.display = (viewId === 'view-subjects') ? 'none' : 'block';
-        }
-
-        function handleBack() {
-            // BACK FROM PDF
-            if(document.getElementById('view-pdf').style.display === 'flex') {
-                document.getElementById('view-pdf').style.display = 'none';
-                document.getElementById('pdf-frame').src = "";
-                document.getElementById('app-interface').style.display = 'block';
-                setOrientation('PORTRAIT'); // Reset
-                return;
-            }
-            
-            // BACK FROM VIDEO
-            if(document.getElementById('view-player').style.display === 'flex') {
-                document.getElementById('view-player').style.display = 'none';
-                document.getElementById('video-container').innerHTML = "";
-                document.getElementById('app-interface').style.display = 'block';
-                setOrientation('PORTRAIT'); // Reset
-                return;
-            }
-
-            // MENU BACK
-            const currentView = views.find(id => document.getElementById(id).style.display !== 'none');
-
-            if(currentView === 'view-units') { renderSubjects(); } 
-            else if (currentView === 'view-lectures') { openSubject(currentSubject); } 
-            else if (currentView === 'view-notes') { openSubject(currentSubject); }
+        function showError(text) {
+            const msg = document.getElementById('msg');
+            msg.innerText = text;
+            msg.style.display = 'block';
         }
     </script>
 </body>
