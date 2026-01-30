@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- ... (Head and CSS same as before) ... -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coaching App</title>
+    <!-- Keep your CSS styles here as they were -->
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; }
@@ -41,7 +43,7 @@
 
         /* VIDEO PLAYER */
         .player-view { display: none; flex-direction: column; height: 100vh; background: black; }
-        .video-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; background: black; }
+        .video-wrapper { position: relative; width: 100%; height: 100%; background: black; display: flex; justify-content: center; align-items: center;}
         
         /* PDF VIEWER */
         .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
@@ -69,25 +71,18 @@
             <span class="batch-badge" id="batch-name-display">...</span>
         </header>
 
-        <!-- 1. SUBJECTS GRID -->
         <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
-
-        <!-- 2. UNITS LIST -->
         <div id="view-units" class="view-container"></div>
-
-        <!-- 3. LECTURES LIST -->
         <div id="view-lectures" class="view-container"></div>
-
-        <!-- 4. NOTES LIST -->
         <div id="view-notes" class="view-container"></div>
     </div>
 
-    <!-- 5. VIDEO PLAYER (Fullscreen Overlay) -->
+    <!-- VIDEO PLAYER -->
     <div id="view-player" class="player-view">
         <div class="video-wrapper" id="video-container"></div>
     </div>
 
-    <!-- 6. PDF VIEWER (Fullscreen Overlay) -->
+    <!-- PDF VIEWER -->
     <div id="view-pdf" class="pdf-view">
         <iframe id="pdf-frame" class="doc-frame" src=""></iframe>
     </div>
@@ -97,11 +92,10 @@
         const userBatch = localStorage.getItem('userBatch');
         
         if (!userBatch) {
-            window.location.href = 'index.html'; // Redirect to login if no batch
+            window.location.href = 'index.html'; 
         } else {
-            // Load the specific JS file for this batch (e.g., "civ4.js")
             const script = document.createElement('script');
-            script.src = userBatch.toLowerCase() + ".js"; // civ4.js
+            script.src = userBatch.toLowerCase() + ".js"; 
             
             script.onload = () => {
                 document.getElementById('loader').style.display = 'none';
@@ -123,17 +117,22 @@
         const views = ['view-subjects', 'view-units', 'view-lectures', 'view-notes'];
         const titleEl = document.getElementById('header-title');
         const backBtn = document.querySelector('.back-btn');
-        
         let currentSubject = null;
-        let currentUnit = null;
 
-        // --- 3. RENDERERS ---
+        // --- 3. HELPER: CONTROL ORIENTATION ---
+        function setOrientation(mode) {
+            if(typeof Android !== 'undefined') {
+                // calls Java to rotate screen
+                Android.setLandscape(mode === 'LANDSCAPE');
+            }
+        }
+
+        // --- 4. RENDERERS ---
 
         function renderSubjects() {
             switchView('view-subjects', 'Subjects');
             const container = document.getElementById('view-subjects');
             container.innerHTML = '';
-
             subjects.forEach(sub => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -149,7 +148,6 @@
             const container = document.getElementById('view-units');
             container.innerHTML = '';
 
-            // Render Units
             if(sub.units && sub.units.length > 0) {
                 sub.units.forEach(unit => {
                     const btn = document.createElement('button');
@@ -162,7 +160,6 @@
                 container.innerHTML = "<div style='text-align:center; color:#94a3b8; margin-top:20px'>No units added yet.</div>";
             }
 
-            // Render Notes Button at bottom
             const notesBtn = document.createElement('button');
             notesBtn.className = 'list-btn notes-section-btn';
             notesBtn.innerHTML = `<span><span class="icon-prefix">📄</span>PDF Notes Section</span> <span class="arrow">›</span>`;
@@ -171,7 +168,6 @@
         }
 
         function openUnit(unit) {
-            currentUnit = unit;
             switchView('view-lectures', unit.name);
             const container = document.getElementById('view-lectures');
             container.innerHTML = '';
@@ -207,15 +203,18 @@
             }
         }
 
-        // --- 4. PLAYERS ---
+        // --- 5. PLAYERS ---
 
         function playVideo(lec) {
             const playerDiv = document.getElementById('view-player');
             const container = document.getElementById('video-container');
             
-            // Show Player Overlay
-            playerDiv.style.display = 'flex';
+            // HIDE UI
             document.getElementById('app-interface').style.display = 'none';
+            playerDiv.style.display = 'flex';
+
+            // FORCE LANDSCAPE
+            setOrientation('LANDSCAPE');
 
             // Embed ScreenPal
             container.innerHTML = `
@@ -231,53 +230,50 @@
             const pdfDiv = document.getElementById('view-pdf');
             const frame = document.getElementById('pdf-frame');
 
-            // Show PDF Overlay
-            pdfDiv.style.display = 'flex';
+            // HIDE UI
             document.getElementById('app-interface').style.display = 'none';
+            pdfDiv.style.display = 'flex';
             
+            // FORCE LANDSCAPE
+            setOrientation('LANDSCAPE');
+
             frame.src = `https://drive.google.com/file/d/${pdfId}/preview`;
         }
 
-        // --- 5. NAVIGATION LOGIC ---
+        // --- 6. NAVIGATION LOGIC ---
 
         function switchView(viewId, title) {
-            // Hide all lists
             views.forEach(id => document.getElementById(id).style.display = 'none');
-            // Show target list
             document.getElementById(viewId).style.display = (viewId === 'view-subjects') ? 'grid' : 'block';
-            
-            // Update Header
             titleEl.innerText = title;
             backBtn.style.display = (viewId === 'view-subjects') ? 'none' : 'block';
         }
 
         function handleBack() {
-            // 1. If PDF is open -> Close it
+            // BACK FROM PDF
             if(document.getElementById('view-pdf').style.display === 'flex') {
                 document.getElementById('view-pdf').style.display = 'none';
                 document.getElementById('pdf-frame').src = "";
                 document.getElementById('app-interface').style.display = 'block';
+                setOrientation('PORTRAIT'); // Reset
                 return;
             }
             
-            // 2. If Video is open -> Close it
+            // BACK FROM VIDEO
             if(document.getElementById('view-player').style.display === 'flex') {
                 document.getElementById('view-player').style.display = 'none';
                 document.getElementById('video-container').innerHTML = "";
                 document.getElementById('app-interface').style.display = 'block';
+                setOrientation('PORTRAIT'); // Reset
                 return;
             }
 
-            // 3. Normal Menu Navigation
+            // MENU BACK
             const currentView = views.find(id => document.getElementById(id).style.display !== 'none');
 
-            if(currentView === 'view-units') {
-                renderSubjects();
-            } else if (currentView === 'view-lectures') {
-                openSubject(currentSubject);
-            } else if (currentView === 'view-notes') {
-                openSubject(currentSubject);
-            }
+            if(currentView === 'view-units') { renderSubjects(); } 
+            else if (currentView === 'view-lectures') { openSubject(currentSubject); } 
+            else if (currentView === 'view-notes') { openSubject(currentSubject); }
         }
     </script>
 </body>
