@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coaching App (Premium Player)</title>
+    <title>Coaching App</title>
     <script src="data.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
@@ -24,128 +24,16 @@
         .video-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .play-icon { margin-right: 15px; color: var(--primary); font-size: 20px; }
 
-        /* --- CUSTOM VIDEO PLAYER --- */
+        /* --- SCREENPAL PLAYER CONTAINER --- */
         .player-container { display: none; flex-direction: column; height: 100vh; background: black;}
         
+        /* Responsive Wrapper */
         .video-wrapper { 
             position: relative; 
             width: 100%; 
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            /* 16:9 Aspect Ratio (56.25%) */
+            padding-bottom: 56.25%; 
             background: black; 
-            overflow: hidden;
-        }
-
-        /* The actual YouTube iframe - Now INTERACTIVE but blocked by Shield */
-        .video-wrapper iframe { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            border: none;
-            /* REMOVED pointer-events: none so API works better */
-        }
-
-        /* THE INVISIBLE SHIELD: Blocks clicks on YouTube UI */
-        .click-shield {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent; /* Invisible */
-            z-index: 50; /* sits ON TOP of iframe */
-        }
-
-        /* Controls Overlay */
-        .controls {
-            display: flex;
-            align-items: center;
-            background: rgba(0,0,0,0.8);
-            padding: 10px;
-            color: white;
-            gap: 15px;
-            z-index: 100; /* Sits ON TOP of Shield */
-            position: relative;
-        }
-
-        .control-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 5px;
-            min-width: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .speed-btn {
-            font-size: 14px;
-            font-weight: bold;
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 2px 6px;
-            width: 40px;
-        }
-
-        .progress-container {
-            flex-grow: 1;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #555;
-            position: relative;
-            border-radius: 2px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            border-radius: 2px;
-            position: relative;
-        }
-        
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: -4px;
-            width: 12px;
-            height: 12px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* --- LANDSCAPE MODE MAGIC --- */
-        .force-landscape {
-            position: fixed !important;
-            top: 0; left: 0;
-            width: 100vh !important;
-            height: 100vw !important;
-            transform: rotate(90deg);
-            transform-origin: bottom left;
-            top: -100vw; 
-            z-index: 99999;
-            background: black;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .force-landscape .video-wrapper {
-            padding-bottom: 0;
-            height: 100%;
-        }
-        
-        .force-landscape .controls {
-            padding: 20px; 
         }
 
         /* PDF Area */
@@ -168,38 +56,16 @@
         <div id="view-player" class="player-container">
             
             <!-- VIDEO PLAYER SECTION -->
-            <div id="landscape-container">
-                <div class="video-wrapper">
-                    <!-- 1. The Player -->
-                    <div id="yt-player"></div>
-                    <!-- 2. The Shield (Blocks Clicks) -->
-                    <div class="click-shield" id="video-shield" onclick="togglePlay()"></div>
-                </div>
-                
-                <!-- 3. The Controls (Sits on top of shield) -->
-                <div class="controls">
-                    <button class="control-btn" onclick="togglePlay()" id="play-btn">▶</button>
-                    
-                    <div class="progress-container" onclick="seek(event)">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress"></div>
-                        </div>
-                    </div>
-                    
-                    <button class="control-btn speed-btn" onclick="toggleSpeed()" id="speed-btn">1x</button>
-                    <button class="control-btn" onclick="toggleLandscape()">⛶</button>
-                </div>
+            <div class="video-wrapper" id="video-box">
+                <!-- ScreenPal Iframe will be injected here by JS -->
             </div>
 
-            <!-- PDF PREVIEW -->
+            <!-- PDF PREVIEW (Download Button Removed) -->
             <div class="pdf-wrapper">
                 <iframe id="pdf-player" src=""></iframe>
             </div>
         </div>
     </div>
-
-    <!-- Load YouTube API -->
-    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
         const viewSubjects = document.getElementById('view-subjects');
@@ -207,131 +73,13 @@
         const viewPlayer = document.getElementById('view-player');
         const pageTitle = document.getElementById('page-title');
         const backBtn = document.querySelector('.back-btn');
+        const videoBox = document.getElementById('video-box');
         
         let currentSubject = null;
-        let player;
-        let isPlaying = false;
-        let progressInterval;
-        let currentSpeed = 1.0;
-        const speeds = [1.0, 1.25, 1.5, 2.0];
 
         function init() { renderSubjects(); }
 
-        function onYouTubeIframeAPIReady() { /* Ready */ }
-
-        function loadVideo(videoId) {
-            if (player) {
-                player.loadVideoById(videoId);
-                player.setPlaybackRate(1.0); 
-                resetControls();
-            } else {
-                player = new YT.Player('yt-player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    playerVars: {
-                        'controls': 0, 
-                        'disablekb': 1,
-                        'fs': 0,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'iv_load_policy': 3,
-                        'playsinline': 1, 
-                        'origin': window.location.origin
-                    },
-                    events: {
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-            }
-        }
-
-        function resetControls() {
-            isPlaying = false;
-            currentSpeed = 1.0;
-            document.getElementById('play-btn').innerText = "▶";
-            document.getElementById('speed-btn').innerText = "1x";
-            document.getElementById('progress').style.width = "0%";
-        }
-
-        function togglePlay() {
-            if(!player) return;
-            // Force play attempt
-            try {
-                const state = player.getPlayerState();
-                if (state === 1) { 
-                    player.pauseVideo(); 
-                } else { 
-                    player.playVideo(); 
-                }
-            } catch (e) {
-                player.playVideo();
-            }
-        }
-
-        function toggleSpeed() {
-            if(!player) return;
-            let idx = speeds.indexOf(currentSpeed);
-            idx = (idx + 1) % speeds.length;
-            currentSpeed = speeds[idx];
-            player.setPlaybackRate(currentSpeed);
-            document.getElementById('speed-btn').innerText = currentSpeed + "x";
-        }
-
-        function onPlayerStateChange(event) {
-            const btn = document.getElementById('play-btn');
-            if (event.data == YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                btn.innerText = "❚❚";
-                startProgressLoop();
-            } else {
-                isPlaying = false;
-                btn.innerText = "▶";
-                stopProgressLoop();
-            }
-        }
-
-        function startProgressLoop() {
-            stopProgressLoop();
-            progressInterval = setInterval(() => {
-                if(player && player.getDuration) {
-                    const duration = player.getDuration();
-                    const current = player.getCurrentTime();
-                    if(duration > 0) {
-                        const percent = (current / duration) * 100;
-                        document.getElementById('progress').style.width = percent + "%";
-                    }
-                }
-            }, 500);
-        }
-
-        function stopProgressLoop() { clearInterval(progressInterval); }
-
-        function seek(event) {
-            if(!player) return;
-            const bar = document.querySelector('.progress-bar');
-            const rect = bar.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const width = rect.width;
-            const clickRatio = clickX / width;
-            const duration = player.getDuration();
-            player.seekTo(duration * clickRatio, true);
-        }
-
-        function toggleLandscape() {
-            const container = document.getElementById('landscape-container');
-            const header = document.getElementById('main-header');
-            if (container.classList.contains('force-landscape')) {
-                container.classList.remove('force-landscape');
-                header.style.display = 'flex'; 
-                document.body.style.overflow = 'auto';
-            } else {
-                container.classList.add('force-landscape');
-                header.style.display = 'none'; 
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
+        // --- NAVIGATION ---
         function renderSubjects() {
             viewSubjects.innerHTML = '';
             subjects.forEach(sub => {
@@ -360,8 +108,23 @@
 
         function playLecture(video) {
             pageTitle.innerText = "Now Playing";
-            loadVideo(video.youtubeId);
+            
+            // --- SCREENPAL EMBED LOGIC ---
+            // We disable Title, Sharing, and Downloading in the URL parameters
+            const spId = video.screenpalId;
+            const embedHTML = `
+                <iframe 
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
+                    scrolling="no" 
+                    src="https://go.screenpal.com/player/${spId}?title=0&share=0&download=0&ff=1" 
+                    allowfullscreen="true">
+                </iframe>`;
+            
+            videoBox.innerHTML = embedHTML;
+
+            // PDF Logic
             document.getElementById('pdf-player').src = `https://drive.google.com/file/d/${video.pdfId}/preview`;
+            
             showView('player');
         }
 
@@ -384,13 +147,9 @@
         }
 
         function goBack() {
-            const container = document.getElementById('landscape-container');
-            if (container.classList.contains('force-landscape')) {
-                toggleLandscape();
-                return; 
-            }
             if (viewPlayer.style.display === 'flex') {
-                if(player) player.pauseVideo();
+                // Remove the iframe to stop audio playing in background
+                videoBox.innerHTML = ""; 
                 openSubject(currentSubject);
             } else if (viewVideos.style.display === 'flex') {
                 currentSubject = null;
@@ -402,3 +161,5 @@
     </script>
 </body>
 </html>
+
+
