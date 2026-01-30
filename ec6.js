@@ -1,123 +1,134 @@
 // DATA FOR ELECTRONICS - 6TH SEMESTER
 const batchName = "Electronics Engg (6th Sem)";
-
 const subjects = [
     {
-        id: "product-design",
+        id: "productdesign",
         name: "Product Design",
-        icon: "🛠️",
+        icon: "⚡",
+        // Added Units Array
         units: [
             {
-                name: "Unit 1: 
-Definition of a product",
+                name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: Intro of Product Design", cOVv2rn3xL9: "" },
-                    { title: "Lec 2: User Research & Needs", screenpalId: "" }
+                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
             {
-                name: "Unit 2: Concept Development",
+                name: "Unit 2: Transistors",
                 lectures: [
-                    { title: "Lec 1: Sketching & Ideation", screenpalId: "" }
+                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
                 ]
             }
-            // ← add more units as needed
         ],
+        // Added Notes Array
         notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "" },
-            { title: "Previous Year Questions", pdfId: "" }
+            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
+            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
         ]
     },
     {
-        id: "cn-dc",
+        id: "networking",
         name: "Computer Networking and Data Communication",
-        icon: "🌐",
+        icon: "⚡",
+        // Added Units Array
         units: [
             {
-                name: "Unit 1: Network Fundamentals",
+                name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: OSI & TCP/IP Model", screenpalId: "" }
+                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
             {
-                name: "Unit 2: Data Link Layer",
+                name: "Unit 2: Transistors",
                 lectures: [
-                    { title: "Lec 1: Error Detection & Correction", screenpalId: "" }
+                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
                 ]
             }
         ],
+        // Added Notes Array
         notes: [
-            { title: "Complete Notes PDF", pdfId: "" },
-            { title: "Question Bank", pdfId: "" }
+            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
+            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
         ]
     },
     {
         id: "mechatronics",
         name: "Mechatronics",
-        icon: "🤖",
+        icon: "⚡",
+        // Added Units Array
         units: [
             {
-                name: "Unit 1: Introduction to Mechatronics",
+                name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: Mechatronic Systems Overview", screenpalId: "" }
+                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
             {
-                name: "Unit 2: Sensors & Actuators",
+                name: "Unit 2: Transistors",
                 lectures: [
-                    { title: "Lec 1: Types of Sensors", screenpalId: "" }
+                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
                 ]
             }
         ],
+        // Added Notes Array
         notes: [
-            { title: "Handwritten Unit Notes", pdfId: "" }
+            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
+            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
         ]
     },
     {
         id: "entrepreneurship",
-        name: "Entrepreneurship and Start-Ups",
-        icon: "🚀",
+        name: "Intrepreneurship and Start-Ups",
+        icon: "⚡",
+        // Added Units Array
         units: [
             {
-                name: "Unit 1: Entrepreneurship Basics",
+                name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: Who is an Entrepreneur?", screenpalId: "" },
-                    { title: "Lec 2: Idea Generation", screenpalId: "" }
+                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
             {
-                name: "Unit 2: Business Model Canvas",
+                name: "Unit 2: Transistors",
                 lectures: [
-                    { title: "Lec 1: Canvas Explained", screenpalId: "" }
+                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
                 ]
             }
         ],
+        // Added Notes Array
         notes: [
-            { title: "Startup Notes & Templates", pdfId: "" },
-            { title: "Case Studies", pdfId: "" }
+            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
+            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
         ]
     },
     {
-        id: "adv-iot",
+        id: "advaiot",
         name: "Advance IoT",
-        icon: "📡",
+        icon: "⚡",
+        // Added Units Array
         units: [
             {
-                name: "Unit 1: IoT Architecture & Protocols",
+                name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: MQTT & CoAP", screenpalId: "" }
+                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
             {
-                name: "Unit 2: Edge Computing & Security",
+                name: "Unit 2: Transistors",
                 lectures: [
-                    { title: "Lec 1: IoT Security Challenges", screenpalId: "" }
+                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
                 ]
             }
         ],
+        // Added Notes Array
         notes: [
-            { title: "Unit-wise Short Notes", pdfId: "" },
-            { title: "Practical Lab Manual", pdfId: "" }
+            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
+            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
         ]
     }
 ];
