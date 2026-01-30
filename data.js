@@ -12,7 +12,7 @@ const subjects = [
             },
             {
                 title: "Lecture 2: PN Junction",
-                screenpalId: "YOUR_SCREENPAL_ID_2",
+                screenpalId: "cOVvX7n3xOb",
                 pdfId: "YOUR_PDF_ID_2"
             }
         ]
@@ -30,3 +30,4 @@ const subjects = [
         ]
     }
 ];
+
