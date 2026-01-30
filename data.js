@@ -1,18 +1,19 @@
 const subjects = [
     {
-        id: "physics",
-        name: "Physics (Electronics)",
-        icon: "⚡", // You can use Emojis as icons
+        id: "electronics",
+        name: "Analog Electronics",
+        icon: "⚡",
         videos: [
             {
-                title: "Lecture 1: Basic Electronics",
-                youtubeId: "jHbipG3aft8", // The ID after 'v=' in YouTube URL
-                pdfId: "1I2yJlXTmenyKjk6f_UZowJ-1k23MfTFg" // The ID from Google Drive share link
+                title: "Lecture 1: Introduction",
+                // Put the ScreenPal ID here (NOT the full URL)
+                screenpalId: "cOVvXsn3xOu", 
+                pdfId: "1234567890abcdefghijk" 
             },
             {
-                title: "Lecture 2: Ohm's Law",
-                youtubeId: "AnotherVideoID",
-                pdfId: "AnotherDriveID"
+                title: "Lecture 2: PN Junction",
+                screenpalId: "YOUR_SCREENPAL_ID_2",
+                pdfId: "YOUR_PDF_ID_2"
             }
         ]
     },
@@ -23,12 +24,9 @@ const subjects = [
         videos: [
             {
                 title: "Lecture 1: Integration",
-                youtubeId: "mathVideoID",
-                pdfId: "mathPdfID"
+                screenpalId: "YOUR_SCREENPAL_ID_3",
+                pdfId: "YOUR_PDF_ID_3"
             }
         ]
     }
-    // Copy paste blocks above to add more subjects
-
 ];
-
