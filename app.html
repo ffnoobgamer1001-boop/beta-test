@@ -3,240 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coaching App</title>
+    <title>Coaching App (Test Mode)</title>
     <script src="data.js"></script>
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+        body { font-family: sans-serif; margin: 0; background: #f0f2f5; }
         
-        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; }
+        /* Header */
+        header { background: white; padding: 15px; position: sticky; top: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; z-index: 100;}
         .back-btn { font-size: 24px; margin-right: 15px; cursor: pointer; display: none; }
-        h1 { margin: 0; font-size: 18px; flex-grow: 1; }
+        h1 { margin: 0; font-size: 18px; }
 
+        /* Grid */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
-        .card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
-        .card-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .card { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
+        /* List */
         .list { display: flex; flex-direction: column; padding: 10px; }
-        .video-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .play-icon { margin-right: 15px; color: var(--primary); font-size: 20px; }
-
+        .video-item { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-bottom: 1px solid #ddd; }
+        
+        /* Player View */
         .player-container { display: none; flex-direction: column; height: 100vh; }
         
-        /* VIDEO WRAPPER */
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: black; overflow: hidden; }
-        /* Pointer events none ensures they can't click YouTube directly */
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; pointer-events: none; }
+        /* Standard Video Wrapper (Responsive) */
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* CSS FAKE FULLSCREEN CLASS */
-        .video-fullscreen {
-            position: fixed !important; top: 0; left: 0; width: 100% !important; height: 100% !important;
-            z-index: 9999; padding-bottom: 0 !important; background: black;
-        }
+        /* Download Button */
+        .toolbar { padding: 10px; background: white; text-align: right; }
+        .dwn-btn { background: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; display: inline-block;}
 
-        /* Controls - HIGH Z-INDEX TO ENSURE CLICKABLE */
-        .controls { display: flex; align-items: center; background: #1e1e1e; padding: 10px; color: white; gap: 15px; z-index: 2147483647; position: relative; }
-        .control-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 15px; min-width: 44px; }
-        .progress-bar { flex-grow: 1; height: 5px; background: #555; cursor: pointer; position: relative; padding: 10px 0; /* Bigger touch area */ }
-        .progress-fill { height: 5px; background: var(--primary); width: 0%; position: absolute; top: 10px; }
-
-        /* TOOLBAR */
-        .toolbar { padding: 10px; background: white; border-bottom: 1px solid #eee; display: flex; justify-content: flex-end; }
-        .download-btn { background: #2563eb; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; border: none; cursor: pointer; }
-
-        .pdf-wrapper { flex-grow: 1; background: #fff; position: relative; }
+        /* PDF */
+        .pdf-wrapper { flex-grow: 1; height: 100%; }
         .pdf-wrapper iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <div id="app-ui">
-        <header>
-            <span class="back-btn" onclick="goBack()">&#8592;</span>
-            <h1 id="page-title">My Subjects</h1>
-        </header>
+    <header>
+        <span class="back-btn" onclick="goBack()">&#8592;</span>
+        <h1 id="page-title">My Subjects</h1>
+    </header>
 
-        <div id="view-subjects" class="grid"></div>
-        <div id="view-videos" class="list" style="display:none;"></div>
+    <!-- VIEWS -->
+    <div id="view-subjects" class="grid"></div>
+    <div id="view-videos" class="list" style="display:none;"></div>
 
-        <div id="view-player" class="player-container">
-            <!-- Video -->
-            <div class="video-wrapper" id="video-box">
-                <div id="yt-player"></div>
-            </div>
-            
-            <!-- Controls -->
-            <div class="controls" id="control-bar">
-                <button class="control-btn" onclick="togglePlay()" id="play-btn">▶</button>
-                <div class="progress-bar" onclick="seek(event)">
-                    <div class="progress-fill" id="progress"></div>
-                </div>
-                <button class="control-btn" onclick="toggleFullScreen()">⛶</button>
-            </div>
+    <div id="view-player" class="player-container">
+        <!-- 1. STANDARD YOUTUBE IFRAME (No API, No Custom Buttons) -->
+        <div class="video-wrapper">
+            <iframe id="yt-iframe" src="" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
 
-            <!-- Download Toolbar -->
-            <div class="toolbar">
-                <button onclick="downloadCurrentPDF()" class="download-btn">⬇ Download Notes</button>
-            </div>
+        <!-- 2. SIMPLE DOWNLOAD LINK -->
+        <div class="toolbar">
+            <a id="dwn-link" href="#" class="dwn-btn">Download Notes</a>
+        </div>
 
-            <!-- PDF Preview -->
-            <div class="pdf-wrapper">
-                <iframe id="pdf-player" src=""></iframe>
-            </div>
+        <!-- 3. PDF PREVIEW -->
+        <div class="pdf-wrapper">
+            <iframe id="pdf-iframe" src=""></iframe>
         </div>
     </div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
-
     <script>
+        // DOM Elements
         const viewSubjects = document.getElementById('view-subjects');
         const viewVideos = document.getElementById('view-videos');
         const viewPlayer = document.getElementById('view-player');
         const pageTitle = document.getElementById('page-title');
         const backBtn = document.querySelector('.back-btn');
+        const ytIframe = document.getElementById('yt-iframe');
+        const pdfIframe = document.getElementById('pdf-iframe');
+        const dwnLink = document.getElementById('dwn-link');
+
         let currentSubject = null;
-        let currentVideoData = null; // Store current video data
-        let player;
-        let isPlaying = false;
-        let progressInterval;
 
-        function init() { renderSubjects(); }
-
-        function onYouTubeIframeAPIReady() {
-            // API Ready
+        // Initialize
+        function init() {
+            renderSubjects();
         }
 
-        function loadVideo(videoId) {
-            if (player) {
-                player.loadVideoById(videoId);
-                isPlaying = false;
-                document.getElementById('play-btn').innerText = "▶";
-            } else {
-                player = new YT.Player('yt-player', {
-                    height: '100%', width: '100%', videoId: videoId,
-                    // Added ORIGIN to fix WebView restrictions
-                    playerVars: { 
-                        'controls': 0, 
-                        'modestbranding': 1, 
-                        'rel': 0, 
-                        'fs': 0, 
-                        'disablekb': 1,
-                        'origin': window.location.origin 
-                    },
-                    events: { 'onStateChange': onPlayerStateChange }
-                });
-            }
-        }
-
-        function togglePlay() {
-            if(!player || typeof player.getPlayerState === 'undefined') {
-                // Player not ready yet, try again in 500ms
-                setTimeout(togglePlay, 500);
-                return;
-            }
-            if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
-        }
-
-        function onPlayerStateChange(event) {
-            const btn = document.getElementById('play-btn');
-            if (event.data == YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                btn.innerText = "❚❚";
-                startProgressLoop();
-            } else {
-                isPlaying = false;
-                btn.innerText = "▶";
-                stopProgressLoop();
-            }
-        }
-
-        function startProgressLoop() {
-            stopProgressLoop();
-            progressInterval = setInterval(() => {
-                if(player && player.getDuration && isPlaying) {
-                    const duration = player.getDuration();
-                    const current = player.getCurrentTime();
-                    if(duration > 0) {
-                        const percent = (current / duration) * 100;
-                        document.getElementById('progress').style.width = percent + "%";
-                    }
-                }
-            }, 500);
-        }
-        function stopProgressLoop() { clearInterval(progressInterval); }
-
-        function seek(event) {
-            if(!player) return;
-            const bar = document.querySelector('.progress-bar');
-            const clickPosition = event.offsetX / bar.offsetWidth;
-            const duration = player.getDuration();
-            player.seekTo(duration * clickPosition, true);
-        }
-
-        function toggleFullScreen() {
-            const videoBox = document.getElementById('video-box');
-            const controls = document.getElementById('control-bar');
-            
-            if (videoBox.classList.contains('video-fullscreen')) {
-                videoBox.classList.remove('video-fullscreen');
-                controls.style.position = 'relative'; // Put controls back
-                document.body.style.overflow = 'auto'; 
-            } else {
-                videoBox.classList.add('video-fullscreen');
-                controls.style.position = 'fixed';
-                controls.style.bottom = '0';
-                controls.style.left = '0';
-                controls.style.width = '100%';
-                document.body.style.overflow = 'hidden'; 
-            }
-        }
-
-        // NEW: Direct Download Logic
-        function downloadCurrentPDF() {
-            if(currentVideoData && currentVideoData.pdfId) {
-                // This link forces a download instead of a preview
-                const downloadLink = `https://drive.google.com/uc?export=download&id=${currentVideoData.pdfId}`;
-                // This forces the MainActivity DownloadListener to catch it
-                window.location.href = downloadLink;
-            } else {
-                alert("No PDF available");
-            }
-        }
-
+        // Render Subjects
         function renderSubjects() {
             viewSubjects.innerHTML = '';
             subjects.forEach(sub => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.innerHTML = `<span class="card-icon">${sub.icon}</span><b>${sub.name}</b>`;
+                card.innerHTML = `<span style="font-size:30px">${sub.icon}</span><br><b>${sub.name}</b>`;
                 card.onclick = () => openSubject(sub);
                 viewSubjects.appendChild(card);
             });
             showView('subjects');
         }
 
-        function openSubject(subject) {
-            currentSubject = subject;
-            pageTitle.innerText = subject.name;
+        // Open Subject List
+        function openSubject(sub) {
+            currentSubject = sub;
+            pageTitle.innerText = sub.name;
             viewVideos.innerHTML = '';
-            subject.videos.forEach(video => {
-                const item = document.createElement('div');
-                item.className = 'video-item';
-                item.innerHTML = `<span class="play-icon">▶</span><span>${video.title}</span>`;
-                item.onclick = () => playLecture(video);
-                viewVideos.appendChild(item);
+            
+            sub.videos.forEach(video => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                div.innerHTML = `<b>${video.title}</b>`;
+                div.onclick = () => playVideo(video);
+                viewVideos.appendChild(div);
             });
             showView('videos');
         }
 
-        function playLecture(video) {
-            currentVideoData = video; // Save for downloader
+        // Play Video (Standard Mode)
+        function playVideo(video) {
             pageTitle.innerText = "Now Playing";
-            loadVideo(video.youtubeId);
-            document.getElementById('pdf-player').src = `https://drive.google.com/file/d/${video.pdfId}/preview`;
+            
+            // 1. Direct YouTube Embed (With Controls Enabled)
+            ytIframe.src = `https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`;
+            
+            // 2. PDF Preview
+            pdfIframe.src = `https://drive.google.com/file/d/${video.pdfId}/preview`;
+            
+            // 3. Direct Download Link
+            // This link format forces a file download
+            dwnLink.href = `https://drive.google.com/uc?export=download&id=${video.pdfId}`;
+            
             showView('player');
         }
 
+        // Navigation Helper
         function showView(viewName) {
             viewSubjects.style.display = 'none';
             viewVideos.style.display = 'none';
@@ -257,15 +150,13 @@
 
         function goBack() {
             if (viewPlayer.style.display === 'flex') {
-                if(player) player.pauseVideo();
-                const videoBox = document.getElementById('video-box');
-                if (videoBox.classList.contains('video-fullscreen')) toggleFullScreen();
+                ytIframe.src = ""; // Stop Video
                 openSubject(currentSubject);
             } else if (viewVideos.style.display === 'flex') {
-                currentSubject = null;
                 renderSubjects();
             }
         }
+
         init();
     </script>
 </body>
