@@ -204,6 +204,7 @@
         let isPlaying = false;
         let progressInterval;
         let currentSpeed = 1.0;
+        let playerReady = false; // Add explicit ready check
         const speeds = [1.0, 1.25, 1.5, 2.0];
 
         function init() { renderSubjects(); }
@@ -229,13 +230,19 @@
                         'rel': 0,
                         'iv_load_policy': 3,
                         'playsinline': 1, // Fixes mobile playback
-                        'origin': window.location.origin // Fixes API security block
+                        'origin': window.location.origin, // Fixes API security block
+                        'host': 'https://www.youtube.com' // Fallback for Origin
                     },
                     events: {
+                        'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange
                     }
                 });
             }
+        }
+
+        function onPlayerReady(event) {
+            playerReady = true;
         }
 
         // --- CONTROLS LOGIC ---
@@ -248,14 +255,19 @@
         }
 
         function togglePlay() {
-            if(!player || typeof player.getPlayerState === 'undefined') return;
+            if(!player) return;
             
-            // 1 = Playing, 3 = Buffering
-            const state = player.getPlayerState();
-            if (state === 1) { 
-                player.pauseVideo(); 
-            } else { 
-                player.playVideo(); 
+            try {
+                // Try to get state, if it fails, default to Play
+                const state = player.getPlayerState();
+                if (state === 1) { 
+                    player.pauseVideo(); 
+                } else { 
+                    player.playVideo(); 
+                }
+            } catch (e) {
+                // If API is glitchy, force Play
+                player.playVideo();
             }
         }
 
