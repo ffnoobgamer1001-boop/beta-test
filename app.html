@@ -227,7 +227,9 @@
                         'fs': 0,
                         'modestbranding': 1,
                         'rel': 0,
-                        'iv_load_policy': 3
+                        'iv_load_policy': 3,
+                        'playsinline': 1, // Fixes mobile playback
+                        'origin': window.location.origin // Fixes API security block
                     },
                     events: {
                         'onStateChange': onPlayerStateChange
@@ -246,9 +248,15 @@
         }
 
         function togglePlay() {
-            if(!player) return;
-            if (isPlaying) { player.pauseVideo(); } 
-            else { player.playVideo(); }
+            if(!player || typeof player.getPlayerState === 'undefined') return;
+            
+            // 1 = Playing, 3 = Buffering
+            const state = player.getPlayerState();
+            if (state === 1) { 
+                player.pauseVideo(); 
+            } else { 
+                player.playVideo(); 
+            }
         }
 
         function toggleSpeed() {
