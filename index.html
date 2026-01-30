@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #93c5fd; }
+        .error { color: red; margin-top: 10px; font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Student Access</h2>
+        <p>Enter your Passkey to join your batch.</p>
+        <input type="text" id="passkey" placeholder="Enter Key (e.g. PASS123)">
+        <button onclick="verify()" id="btn">Enter Class</button>
+        <p class="error" id="msg">Invalid Key</p>
+    </div>
+
+    <script>
+        // Check if already logged in
+        if(localStorage.getItem('isVerified') === 'true') {
+            window.location.href = 'app.html';
+        }
+
+        // TODO: PUT YOUR NEW GOOGLE SCRIPT URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxEBhbf3_InhsOYAvziW9gljNGJ2ejfwN_P581tRgBgFb6ebcgtyl259nKzL8PyuWi0/exec";
+
+        function verify() {
+            const key = document.getElementById('passkey').value.trim();
+            const btn = document.getElementById('btn');
+            const msg = document.getElementById('msg');
+            
+            if(!key) return;
+
+            btn.disabled = true;
+            btn.innerText = "Verifying Batch...";
+            msg.style.display = 'none';
+
+            fetch(SCRIPT_URL + "?passkey=" + key)
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    // 1. Save Verified Status
+                    localStorage.setItem('isVerified', 'true');
+                    
+                    // 2. SAVE THE BATCH CODE (Crucial Step)
+                    // The script returns "CIV4" or "EC2", we save it here.
+                    localStorage.setItem('userBatch', data.batch); 
+                    
+                    // 3. Tell Android App to save state
+                    if(typeof Android !== 'undefined') {
+                        Android.onLoginSuccess();
+                    }
+
+                    // 4. Go to content
+                    window.location.href = 'app.html';
+                } else {
+                    msg.style.display = 'block';
+                    msg.innerText = "Invalid or Expired Key";
+                    btn.disabled = false;
+                    btn.innerText = "Enter Class";
+                }
+            })
+            .catch(err => {
+                alert("Network Error: Check Internet");
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
