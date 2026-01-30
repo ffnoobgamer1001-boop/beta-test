@@ -24,10 +24,11 @@ const subjects = [
         videos: [
             {
                 title: "Lecture 1: Integration",
-                screenpalId: "YOUR_SCREENPAL_ID_3",
+                screenpalId: "cOVvl2n3xvU",
                 pdfId: "YOUR_PDF_ID_3"
             }
         ]
     }
 ];
+
 
