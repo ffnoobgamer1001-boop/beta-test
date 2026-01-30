@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 85%; max-width: 320px; text-align: center; }
+        h2 { margin-top: 0; color: #1e293b; }
+        p { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+        
+        input { 
+            width: 100%; padding: 14px; margin-bottom: 15px; 
+            border: 2px solid #e2e8f0; border-radius: 8px; 
+            box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s;
+        }
+        input:focus { border-color: #2563eb; }
+        
+        button { 
+            width: 100%; padding: 14px; background: #2563eb; color: white; 
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 600; 
+            cursor: pointer; transition: 0.2s; 
+        }
+        button:active { transform: scale(0.98); background: #1d4ed8; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        .error { color: #ef4444; margin-top: 15px; font-size: 14px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px;}
+        .footer { margin-top: 20px; font-size: 12px; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Welcome</h2>
+        <p>Enter your unique Passkey to access your batch content.</p>
+        
+        <input type="text" id="passkey" placeholder="Enter Passkey (e.g. CIV4-001)" autocomplete="off">
+        <button onclick="verify()" id="btn">Enter Classroom</button>
+        
+        <div class="error" id="msg"></div>
+        <div class="footer">Secure Student Portal</div>
+    </div>
+
+    <script>
+        // 1. AUTO-LOGIN: Check if student is already verified
+        if(localStorage.getItem('isVerified') === 'true') {
+            window.location.href = 'app.html';
+        }
+
+        // TODO: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK7y9BWdQNALMzjN0OwC6UMwYy2woyLgNkuDtHveCWgo5b-Woyu2QF4BSCHhKjX4A/exec";
+
+        function verify() {
+            const keyInput = document.getElementById('passkey');
+            const key = keyInput.value.trim();
+            const btn = document.getElementById('btn');
+            const msg = document.getElementById('msg');
+            
+            if(!key) {
+                showError("Please enter a passkey");
+                return;
+            }
+
+            // UI Loading State
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+            msg.style.display = 'none';
+
+            fetch(SCRIPT_URL + "?passkey=" + key)
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    // SUCCESS: Save credentials and redirect
+                    localStorage.setItem('isVerified', 'true');
+                    localStorage.setItem('userBatch', data.batch); // Saves "CIV4", "EC2", etc.
+                    
+                    // Notify Android App (if running in app)
+                    if(typeof Android !== 'undefined') {
+                        Android.onLoginSuccess();
+                    }
+
+                    window.location.href = 'app.html';
+                } else {
+                    // FAIL
+                    showError("Invalid or Expired Passkey");
+                    btn.disabled = false;
+                    btn.innerText = "Enter Classroom";
+                }
+            })
+            .catch(err => {
+                showError("Connection Error. Check Internet.");
+                btn.disabled = false;
+                btn.innerText = "Enter Classroom";
+            });
+        }
+
+        function showError(text) {
+            const msg = document.getElementById('msg');
+            msg.innerText = text;
+            msg.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
