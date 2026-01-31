@@ -5,24 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diploma Dost</title>
     <script>
-        // Security: Redirect if not in App
         if (navigator.userAgent !== "DiplomaDostAppv1") {
             window.location.href = "https://t.me/+lD3Z3iBSLj9lZDY9";
         }
-
-        // Security: Block unauthorized links
-        document.addEventListener('click', function(e) {
-            const target = e.target.closest('a');
-            if (target) {
-                const href = target.getAttribute('href');
-                // Allow Download, Telegram, and Hash links
-                if (href && !href.includes('t.me') && !href.includes('export=download') && !href.startsWith('#') && !href.includes('javascript')) {
-                    e.preventDefault();
-                    // Optional: Show toast or alert
-                    // alert("External links are disabled.");
-                }
-            }
-        });
     </script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
@@ -41,86 +26,28 @@
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* --- SPLIT PLAYER VIEW --- */
+        /* PLAYER VIEW */
         .player-view { display: none; flex-direction: column; height: 100vh; background: white; overflow: hidden; }
+        .video-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; background: black; flex-shrink: 0; }
         
-        .video-wrapper { 
-            position: relative; 
-            width: 100%; 
-            padding-bottom: 56.25%; 
-            background: black; 
-            flex-shrink: 0; 
-        }
+        .lec-pdf-container { flex-grow: 1; position: relative; background: white; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
+        .pdf-frame-wrapper { position: relative; flex-grow: 1; width: 100%; height: 100%; }
         
-        .lec-pdf-container { 
-            flex-grow: 1; 
-            position: relative; 
-            background: white; 
-            display: flex; 
-            flex-direction: column; 
-            border-top: 1px solid #ddd;
-        }
-
-        /* PDF Frame Wrapper (Crucial for blocking pop-out) */
-        .pdf-frame-wrapper {
-            position: relative;
-            flex-grow: 1;
-            width: 100%;
-            height: 100%;
-        }
-        
+        /* PDF VIEW */
         .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
-
         iframe.doc-frame { width: 100%; height: 100%; border: none; background: white; }
         
-        .dwn-bar {
-            background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .dwn-btn {
-            background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; 
-            border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block;
-        }
+        .dwn-bar { background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .dwn-btn { background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block; }
 
-        /* --- SMART BLOCKERS --- */
-        
-        /* 1. Video Watermark Blocker */
-        .watermark-blocker { 
-            position: absolute; 
-            bottom: 0px; 
-            right: 0px; 
-            width: 120px; /* Covers "ScreenPal" text but usually misses the [ ] button */
-            height: 45px; /* Height of the control bar usually */
-            background: transparent; 
-            z-index: 2147483647; /* Max Z-Index */
-            display: none; /* Hidden by default in portrait */
-        }
-
-        /* Only show blocker when screen is wide (Landscape) */
-        @media (orientation: landscape) {
-            .watermark-blocker { display: block; }
-        }
-
-        /* 2. PDF Pop-out Blocker */
-        .pdf-popout-blocker {
-            position: absolute;
-            top: 0; right: 0;
-            width: 60px; height: 60px; /* Covers the black box button */
-            background: transparent;
-            z-index: 2147483647;
-        }
+        /* PDF POP-OUT BLOCKER (Only needed for Google Drive) */
+        .pdf-popout-blocker { position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: transparent; z-index: 2147483647; }
 
         .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
         .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
         .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
 
-        /* Rotate Button */
-        .rotate-btn {
-            position: absolute; top: 10px; right: 10px; z-index: 2000;
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
-            padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;
-        }
-
+        .rotate-btn { position: absolute; top: 10px; right: 10px; z-index: 2000; background: rgba(0,0,0,0.6); color: white; border: 1px solid white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
@@ -153,10 +80,9 @@
                 <span style="font-size:12px; font-weight:bold; color:#64748b;">Lecture Notes</span>
                 <a id="lec-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
             </div>
-            <!-- Wrapper for PDF Iframe and Blocker -->
             <div class="pdf-frame-wrapper">
                 <iframe id="lec-pdf-frame" class="doc-frame" src=""></iframe>
-                <div class="pdf-popout-blocker"></div> <!-- BLOCKS POP-OUT -->
+                <div class="pdf-popout-blocker"></div>
             </div>
         </div>
     </div>
@@ -169,7 +95,7 @@
         </div>
         <div class="pdf-frame-wrapper">
             <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
-            <div class="pdf-popout-blocker"></div> <!-- BLOCKS POP-OUT -->
+            <div class="pdf-popout-blocker"></div>
         </div>
         <button class="rotate-btn" onclick="toggleRotation()" style="color:black; background:rgba(255,255,255,0.8); border:1px solid #ccc;">↻ Rotate</button>
     </div>
@@ -185,11 +111,11 @@
             document.getElementById('app-interface').style.display = 'block';
             if(typeof batchName !== 'undefined') document.getElementById('batch-name-display').innerText = batchName;
             
-            // Initial State Check
-            if (history.state) {
-                restoreState(history.state);
+            // Fix: Don't push state on initial load to prevent "double back to exit" bug
+            if (!history.state) {
+                renderSubjects(false);
             } else {
-                renderSubjects();
+                restoreState(history.state);
             }
         };
         document.head.appendChild(script);
@@ -205,13 +131,10 @@
             if(typeof Android !== 'undefined') Android.setLandscape(isLandscape);
         }
 
-        // New Rotation Logic using History
         function toggleRotation() {
             if (isLandscape) {
-                // If in Landscape, Go Back (this triggers popstate -> restoreState -> Portrait)
-                history.back();
+                history.back(); // Back triggers restoration to portrait
             } else {
-                // If in Portrait, Push new Landscape State
                 const currentState = history.state || {};
                 const newState = { ...currentState, landscape: true };
                 history.pushState(newState, "", "");
@@ -219,25 +142,15 @@
             }
         }
 
-        // Hardware Back Button Handler
         window.onpopstate = function(event) {
-            if (event.state) {
-                restoreState(event.state);
-            } else {
-                // Fallback if no state (e.g. initial load)
-                renderSubjects(); 
-            }
+            if (event.state) { restoreState(event.state); } 
+            else { renderSubjects(false); }
         };
 
         function restoreState(state) {
-            // 1. Handle Orientation first
-            if (state.landscape) {
-                setOrientation('LANDSCAPE');
-            } else {
-                setOrientation('PORTRAIT');
-            }
+            if (state.landscape) setOrientation('LANDSCAPE');
+            else setOrientation('PORTRAIT');
 
-            // 2. Handle View
             if (state.view === 'view-subjects') {
                 closeOverlays();
                 renderSubjects(false);
@@ -255,7 +168,6 @@
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) { currentSubject = sub; openNotesList(sub, false); }
             } else if (state.view === 'player') {
-                // Ensure player is visible if we navigated back TO the player
                 document.getElementById('app-interface').style.display = 'none';
                 document.getElementById('view-player').style.display = 'flex';
                 document.getElementById('view-pdf').style.display = 'none';
@@ -358,8 +270,6 @@
         function playLecture(lec) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-player').style.display = 'flex';
-            
-            // Force Portrait initially
             setOrientation('PORTRAIT');
 
             document.getElementById('video-container').innerHTML = `
@@ -367,9 +277,7 @@
                     scrolling="no" 
                     src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
                     allowfullscreen="true">
-                </iframe>
-                <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
-            `;
+                </iframe>`;
 
             const pdfFrame = document.getElementById('lec-pdf-frame');
             const dwnBtn = document.getElementById('lec-dwn-btn');
@@ -393,7 +301,6 @@
         function openFullPdf(title, pdfId) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-pdf').style.display = 'flex';
-            
             setOrientation('PORTRAIT');
 
             document.getElementById('pdf-title-display').innerText = title;
@@ -411,7 +318,6 @@
         }
 
         function handleBack() {
-            // This triggers popstate, which handles everything including rotation logic
             history.back();
         }
     </script>
