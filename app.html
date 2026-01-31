@@ -5,9 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diploma Dost</title>
     <script>
+        // Security: Redirect if not in App
         if (navigator.userAgent !== "DiplomaDostAppv1") {
             window.location.href = "https://t.me/+lD3Z3iBSLj9lZDY9";
         }
+
+        // Security: Block unauthorized links
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('a');
+            if (target) {
+                const href = target.getAttribute('href');
+                // Allow Download, Telegram, and Hash links
+                if (href && !href.includes('t.me') && !href.includes('export=download') && !href.startsWith('#') && !href.includes('javascript')) {
+                    e.preventDefault();
+                    // Optional: Show toast or alert
+                    // alert("External links are disabled.");
+                }
+            }
+        });
     </script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
@@ -72,16 +87,16 @@
         /* 1. Video Watermark Blocker */
         .watermark-blocker { 
             position: absolute; 
-            bottom: 0; right: 0; 
-            width: 100px; height: 60px; /* Covers logo area */
+            bottom: 0px; 
+            right: 0px; 
+            width: 120px; /* Covers "ScreenPal" text but usually misses the [ ] button */
+            height: 45px; /* Height of the control bar usually */
             background: transparent; 
-            z-index: 1000; 
+            z-index: 2147483647; /* Max Z-Index */
+            display: none; /* Hidden by default in portrait */
         }
 
-        /* Logic: Hide blocker in Portrait (so Fullscreen btn works), Show in Landscape */
-        @media (orientation: portrait) {
-            .watermark-blocker { display: none; }
-        }
+        /* Only show blocker when screen is wide (Landscape) */
         @media (orientation: landscape) {
             .watermark-blocker { display: block; }
         }
@@ -92,12 +107,19 @@
             top: 0; right: 0;
             width: 60px; height: 60px; /* Covers the black box button */
             background: transparent;
-            z-index: 2000;
+            z-index: 2147483647;
         }
 
         .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
         .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
         .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
+
+        /* Rotate Button */
+        .rotate-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 2000;
+            background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
+            padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;
+        }
 
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
@@ -124,6 +146,7 @@
     <!-- SPLIT PLAYER -->
     <div id="view-player" class="player-view">
         <div class="video-wrapper" id="video-container"></div>
+        <button class="rotate-btn" onclick="toggleRotation()">↻ Rotate</button>
         
         <div class="lec-pdf-container" id="lec-pdf-box">
             <div class="dwn-bar" id="lec-dwn-bar">
@@ -148,6 +171,7 @@
             <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
             <div class="pdf-popout-blocker"></div> <!-- BLOCKS POP-OUT -->
         </div>
+        <button class="rotate-btn" onclick="toggleRotation()" style="color:black; background:rgba(255,255,255,0.8); border:1px solid #ccc;">↻ Rotate</button>
     </div>
 
     <script>
@@ -160,8 +184,13 @@
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-interface').style.display = 'block';
             if(typeof batchName !== 'undefined') document.getElementById('batch-name-display').innerText = batchName;
-            const savedState = history.state;
-            if (savedState) { restoreState(savedState); } else { renderSubjects(); }
+            
+            // Initial State Check
+            if (history.state) {
+                restoreState(history.state);
+            } else {
+                renderSubjects();
+            }
         };
         document.head.appendChild(script);
 
@@ -169,26 +198,71 @@
         const titleEl = document.getElementById('header-title');
         const backBtn = document.querySelector('.back-btn');
         let currentSubject = null;
+        let isLandscape = false;
 
         function setOrientation(mode) {
-            if(typeof Android !== 'undefined') Android.setLandscape(mode === 'LANDSCAPE');
+            isLandscape = (mode === 'LANDSCAPE');
+            if(typeof Android !== 'undefined') Android.setLandscape(isLandscape);
         }
 
+        // New Rotation Logic using History
+        function toggleRotation() {
+            if (isLandscape) {
+                // If in Landscape, Go Back (this triggers popstate -> restoreState -> Portrait)
+                history.back();
+            } else {
+                // If in Portrait, Push new Landscape State
+                const currentState = history.state || {};
+                const newState = { ...currentState, landscape: true };
+                history.pushState(newState, "", "");
+                setOrientation('LANDSCAPE');
+            }
+        }
+
+        // Hardware Back Button Handler
+        window.onpopstate = function(event) {
+            if (event.state) {
+                restoreState(event.state);
+            } else {
+                // Fallback if no state (e.g. initial load)
+                renderSubjects(); 
+            }
+        };
+
         function restoreState(state) {
-            closeOverlays();
-            if (state.view === 'view-subjects') renderSubjects(false);
-            else if (state.view === 'view-units') {
+            // 1. Handle Orientation first
+            if (state.landscape) {
+                setOrientation('LANDSCAPE');
+            } else {
+                setOrientation('PORTRAIT');
+            }
+
+            // 2. Handle View
+            if (state.view === 'view-subjects') {
+                closeOverlays();
+                renderSubjects(false);
+            } else if (state.view === 'view-units') {
+                closeOverlays();
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) openSubject(sub, false);
-            }
-            else if (state.view === 'view-lectures') {
+            } else if (state.view === 'view-lectures') {
+                closeOverlays();
                 const sub = subjects.find(s => s.name === state.subName);
                 const unit = sub ? sub.units.find(u => u.name === state.unitName) : null;
                 if(unit) { currentSubject = sub; openUnit(unit, false); }
-            }
-            else if (state.view === 'view-notes') {
+            } else if (state.view === 'view-notes') {
+                closeOverlays();
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) { currentSubject = sub; openNotesList(sub, false); }
+            } else if (state.view === 'player') {
+                // Ensure player is visible if we navigated back TO the player
+                document.getElementById('app-interface').style.display = 'none';
+                document.getElementById('view-player').style.display = 'flex';
+                document.getElementById('view-pdf').style.display = 'none';
+            } else if (state.view === 'pdf') {
+                document.getElementById('app-interface').style.display = 'none';
+                document.getElementById('view-pdf').style.display = 'flex';
+                document.getElementById('view-player').style.display = 'none';
             }
         }
 
@@ -197,7 +271,6 @@
             document.getElementById('video-container').innerHTML = "";
             document.getElementById('view-pdf').style.display = 'none';
             document.getElementById('app-interface').style.display = 'block';
-            setOrientation('PORTRAIT');
         }
 
         function renderSubjects(pushToHistory = true) {
@@ -286,6 +359,7 @@
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-player').style.display = 'flex';
             
+            // Force Portrait initially
             setOrientation('PORTRAIT');
 
             document.getElementById('video-container').innerHTML = `
@@ -294,7 +368,6 @@
                     src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
                     allowfullscreen="true">
                 </iframe>
-                <!-- This blocker only shows in Landscape mode via CSS -->
                 <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
             `;
 
@@ -314,7 +387,7 @@
                 pdfFrame.src = "";
             }
 
-            history.pushState({view: 'player'}, "Video", "");
+            history.pushState({view: 'player', landscape: false}, "Video", "");
         }
 
         function openFullPdf(title, pdfId) {
@@ -327,7 +400,7 @@
             document.getElementById('full-pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`;
             document.getElementById('full-dwn-btn').href = `https://drive.google.com/uc?export=download&id=${pdfId}`;
             
-            history.pushState({view: 'pdf'}, "PDF", "");
+            history.pushState({view: 'pdf', landscape: false}, "PDF", "");
         }
 
         function switchView(viewId, title) {
@@ -338,15 +411,8 @@
         }
 
         function handleBack() {
-            if(document.getElementById('view-pdf').style.display === 'flex' || 
-               document.getElementById('view-player').style.display === 'flex') {
-                history.back();
-                return;
-            }
-            const currentView = views.find(id => document.getElementById(id).style.display !== 'none');
-            if(currentView === 'view-units') renderSubjects(); 
-            else if (currentView === 'view-lectures') openSubject(currentSubject); 
-            else if (currentView === 'view-notes') openSubject(currentSubject);
+            // This triggers popstate, which handles everything including rotation logic
+            history.back();
         }
     </script>
 </body>
