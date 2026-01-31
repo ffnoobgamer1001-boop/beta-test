@@ -1,134 +1,115 @@
-// DATA FOR ELECTRONICS - 6TH SEMESTER
 const batchName = "Electronics Engg (6th Sem)";
+
 const subjects = [
-    {
-        id: "productdesign",
-        name: "Product Design",
-        icon: "⚡",
-        // Added Units Array
-        units: [
-            {
-                name: "Unit 1: Semiconductor Physics",
-                lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVwhjn344T" },
-                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
-                ]
-            },
-            {
-                name: "Unit 2: Transistors",
-                lectures: [
-                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
-                ]
-            }
-        ],
-        // Added Notes Array
-        notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "1mNC7jBHpwV1Y9qnMDGMNWeYTbJGIIA2W" },
-            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
+  {
+    id: "product-design",
+    name: "Product Design",
+    icon: "🎨",   // you can change emoji anytime
+    units: [
+      {
+        name: "Unit 1",
+        lectures: [
+          {
+            title: "Lec 1: Introduction to Product Design",
+            screenpalId: "",
+            pdfId: ""
+          },
+          // add more lectures here...
         ]
-    },
-    {
-        id: "networking",
-        name: "Computer Networking and Data Communication",
-        icon: "⚡",
-        // Added Units Array
-        units: [
-            {
-                name: "Unit 1: Semiconductor Physics",
-                lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
-                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
-                ]
-            },
-            {
-                name: "Unit 2: Transistors",
-                lectures: [
-                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
-                ]
-            }
-        ],
-        // Added Notes Array
-        notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
-            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
+      },
+      // add more units...
+    ],
+    notes: [
+      { title: "Full Unit Notes", pdfId: "" },
+      { title: "Previous Year Papers", pdfId: "" }
+    ]
+  },
+
+  {
+    id: "networking",
+    name: "Computer Networking and Data Communication",
+    icon: "🌐",
+    units: [
+      {
+        name: "Unit 1",
+        lectures: [
+          {
+            title: "Lec 1: Basics of Networking",
+            screenpalId: "",
+            pdfId: ""
+          }
         ]
-    },
-    {
-        id: "mechatronics",
-        name: "Mechatronics",
-        icon: "⚡",
-        // Added Units Array
-        units: [
-            {
-                name: "Unit 1: Semiconductor Physics",
-                lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
-                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
-                ]
-            },
-            {
-                name: "Unit 2: Transistors",
-                lectures: [
-                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
-                ]
-            }
-        ],
-        // Added Notes Array
-        notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
-            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
+      }
+    ],
+    notes: [
+      { title: "Full Notes", pdfId: "" },
+      { title: "Previous Year Papers", pdfId: "" }
+    ]
+  },
+
+  {
+    id: "mechatronics",
+    name: "Mechatronics",
+    icon: "🤖",
+    units: [
+      {
+        name: "Unit 1",
+        lectures: [
+          {
+            title: "Lec 1: Intro to Mechatronics",
+            screenpalId: "",
+            pdfId: ""
+          }
         ]
-    },
-    {
-        id: "entrepreneurship",
-        name: "Intrepreneurship and Start-Ups",
-        icon: "⚡",
-        // Added Units Array
-        units: [
-            {
-                name: "Unit 1: Semiconductor Physics",
-                lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
-                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
-                ]
-            },
-            {
-                name: "Unit 2: Transistors",
-                lectures: [
-                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
-                ]
-            }
-        ],
-        // Added Notes Array
-        notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
-            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
+      }
+    ],
+    notes: [
+      { title: "Unit Notes", pdfId: "" },
+      { title: "Previous Year Papers", pdfId: "" }
+    ]
+  },
+
+  {
+    id: "entrepreneurship",
+    name: "Entrepreneurship and Start-Ups",
+    icon: "🚀",
+    units: [
+      {
+        name: "Unit 1",
+        lectures: [
+          {
+            title: "Lec 1: Basics of Entrepreneurship",
+            screenpalId: "",
+            pdfId: ""
+          }
         ]
-    },
-    {
-        id: "advaiot",
-        name: "Advance IoT",
-        icon: "⚡",
-        // Added Units Array
-        units: [
-            {
-                name: "Unit 1: Semiconductor Physics",
-                lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
-                    { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
-                ]
-            },
-            {
-                name: "Unit 2: Transistors",
-                lectures: [
-                    { title: "Lec 1: BJT Basics", screenpalId: "cOVvXsn3xOu" }
-                ]
-            }
-        ],
-        // Added Notes Array
-        notes: [
-            { title: "Unit 1 Handwritten Notes", pdfId: "YOUR_DRIVE_PDF_ID" },
-            { title: "Question Bank", pdfId: "YOUR_DRIVE_PDF_ID" }
+      }
+    ],
+    notes: [
+      { title: "Full Notes + Case Studies", pdfId: "" },
+      { title: "Previous Year Papers", pdfId: "" }
+    ]
+  },
+
+  {
+    id: "adv-iot",
+    name: "Advance IoT",
+    icon: "📡",
+    units: [
+      {
+        name: "Unit 1",
+        lectures: [
+          {
+            title: "Lec 1: Advanced IoT Concepts",
+            screenpalId: "",
+            pdfId: ""
+          }
         ]
-    }
+      }
+    ],
+    notes: [
+      { title: "Unit Notes + Protocols", pdfId: "" },
+      { title: "Previous Year Papers", pdfId: "" }
+    ]
+  }
 ];
