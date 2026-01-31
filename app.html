@@ -18,9 +18,7 @@
         h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
 
-        /* SCROLLABLE MAIN AREA */
         .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
         .view-container { padding: 15px; display: none; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .card { background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; }
@@ -28,19 +26,17 @@
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* --- SPLIT PLAYER VIEW (Video + PDF) --- */
+        /* --- SPLIT PLAYER VIEW --- */
         .player-view { display: none; flex-direction: column; height: 100vh; background: white; overflow: hidden; }
         
-        /* 1. Video Container (Fixed Ratio) */
         .video-wrapper { 
             position: relative; 
             width: 100%; 
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            padding-bottom: 56.25%; 
             background: black; 
-            flex-shrink: 0; /* Prevents shrinking */
+            flex-shrink: 0; 
         }
         
-        /* 2. Lecture PDF Container (Fills rest of screen) */
         .lec-pdf-container { 
             flex-grow: 1; 
             position: relative; 
@@ -49,14 +45,19 @@
             flex-direction: column; 
             border-top: 1px solid #ddd;
         }
+
+        /* PDF Frame Wrapper (Crucial for blocking pop-out) */
+        .pdf-frame-wrapper {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+        }
         
-        /* --- FULL PDF VIEW --- */
         .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
 
-        /* IFRAMES */
-        iframe.doc-frame { width: 100%; height: 100%; border: none; flex-grow: 1; background: white; }
+        iframe.doc-frame { width: 100%; height: 100%; border: none; background: white; }
         
-        /* DOWNLOAD BAR */
         .dwn-bar {
             background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0;
             display: flex; justify-content: space-between; align-items: center;
@@ -66,10 +67,34 @@
             border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block;
         }
 
-        /* WATERMARK BLOCKER */
-        .watermark-blocker { position: absolute; bottom: 0; right: 0; width: 130px; height: 50px; background: transparent; z-index: 1000; }
+        /* --- SMART BLOCKERS --- */
+        
+        /* 1. Video Watermark Blocker */
+        .watermark-blocker { 
+            position: absolute; 
+            bottom: 0; right: 0; 
+            width: 100px; height: 60px; /* Covers logo area */
+            background: transparent; 
+            z-index: 1000; 
+        }
 
-        /* SUPPORT SECTION */
+        /* Logic: Hide blocker in Portrait (so Fullscreen btn works), Show in Landscape */
+        @media (orientation: portrait) {
+            .watermark-blocker { display: none; }
+        }
+        @media (orientation: landscape) {
+            .watermark-blocker { display: block; }
+        }
+
+        /* 2. PDF Pop-out Blocker */
+        .pdf-popout-blocker {
+            position: absolute;
+            top: 0; right: 0;
+            width: 60px; height: 60px; /* Covers the black box button */
+            background: transparent;
+            z-index: 2000;
+        }
+
         .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
         .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
         .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
@@ -81,7 +106,6 @@
 
     <div id="loader">Loading...</div>
 
-    <!-- MAIN INTERFACE -->
     <div id="app-interface" style="display:none;">
         <header>
             <span class="back-btn" onclick="handleBack()">&#8592;</span>
@@ -97,29 +121,33 @@
         </div>
     </div>
 
-    <!-- VIEW: SPLIT PLAYER (Video Top + PDF Bottom) -->
+    <!-- SPLIT PLAYER -->
     <div id="view-player" class="player-view">
-        <!-- TOP: VIDEO -->
         <div class="video-wrapper" id="video-container"></div>
         
-        <!-- BOTTOM: PDF + DOWNLOAD -->
         <div class="lec-pdf-container" id="lec-pdf-box">
             <div class="dwn-bar" id="lec-dwn-bar">
                 <span style="font-size:12px; font-weight:bold; color:#64748b;">Lecture Notes</span>
-                <!-- Download Link triggers external browser via export=download -->
                 <a id="lec-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
             </div>
-            <iframe id="lec-pdf-frame" class="doc-frame" src=""></iframe>
+            <!-- Wrapper for PDF Iframe and Blocker -->
+            <div class="pdf-frame-wrapper">
+                <iframe id="lec-pdf-frame" class="doc-frame" src=""></iframe>
+                <div class="pdf-popout-blocker"></div> <!-- BLOCKS POP-OUT -->
+            </div>
         </div>
     </div>
 
-    <!-- VIEW: FULL PDF (For Full Unit Notes) -->
+    <!-- FULL PDF -->
     <div id="view-pdf" class="pdf-view">
         <div class="dwn-bar">
             <span id="pdf-title-display" style="font-size:12px; font-weight:bold; color:#64748b;">PDF Viewer</span>
             <a id="full-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
         </div>
-        <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
+        <div class="pdf-frame-wrapper">
+            <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
+            <div class="pdf-popout-blocker"></div> <!-- BLOCKS POP-OUT -->
+        </div>
     </div>
 
     <script>
@@ -254,52 +282,45 @@
             });
         }
 
-        // --- NEW: SPLIT PLAYER LOGIC ---
         function playLecture(lec) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-player').style.display = 'flex';
             
-            // 1. Force Portrait so video is top, pdf is bottom
             setOrientation('PORTRAIT');
 
-            // 2. Load Video
             document.getElementById('video-container').innerHTML = `
                 <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
                     scrolling="no" 
                     src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
                     allowfullscreen="true">
                 </iframe>
+                <!-- This blocker only shows in Landscape mode via CSS -->
                 <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
             `;
 
-            // 3. Load PDF (if exists)
             const pdfFrame = document.getElementById('lec-pdf-frame');
             const dwnBtn = document.getElementById('lec-dwn-btn');
             const dwnBar = document.getElementById('lec-dwn-bar');
+            const pdfWrapper = document.querySelector('#lec-pdf-box .pdf-frame-wrapper');
 
             if (lec.pdfId && lec.pdfId.length > 5) {
-                // Show PDF Section
                 dwnBar.style.display = "flex";
-                pdfFrame.style.display = "block";
+                pdfWrapper.style.display = "block";
                 pdfFrame.src = `https://drive.google.com/file/d/${lec.pdfId}/preview`;
-                // Set Download Link
                 dwnBtn.href = `https://drive.google.com/uc?export=download&id=${lec.pdfId}`;
             } else {
-                // Hide PDF Section (Show White Screen)
                 dwnBar.style.display = "none";
-                pdfFrame.style.display = "none";
+                pdfWrapper.style.display = "none";
                 pdfFrame.src = "";
             }
 
             history.pushState({view: 'player'}, "Video", "");
         }
 
-        // --- NEW: FULL PDF LOGIC ---
         function openFullPdf(title, pdfId) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-pdf').style.display = 'flex';
             
-            // Force Portrait (Full Screen PDF)
             setOrientation('PORTRAIT');
 
             document.getElementById('pdf-title-display').innerText = title;
