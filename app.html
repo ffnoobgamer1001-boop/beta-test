@@ -5,101 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diploma Dost</title>
     <script>
-        // --- BROWSER BLOCKING SECURITY ---
         if (navigator.userAgent !== "DiplomaDostAppv1") {
-            document.write(`
-                <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;">
-                    <h2 style="color:#ef4444;">Access Restricted</h2>
-                    <p>This content is protected and only available in the <b>Diploma Dost</b> Android App.</p>
-                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;margin-top:20px;">Join Telegram Channel</a>
-                </div>
-            `);
-            window.stop();
-            throw new Error("Access Denied");
+            window.location.href = "https://t.me/+lD3Z3iBSLj9lZDY9";
         }
     </script>
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card-bg: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; height: 100vh; overflow: hidden; }
         
         header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
         .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
-        h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
 
-        /* VIEWS */
-        .view-container { padding: 15px; display: none; animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* SCROLLABLE MAIN AREA */
+        .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-        /* GRID (Subjects) */
+        .view-container { padding: 15px; display: none; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; cursor: pointer; transition: 0.1s; }
-        .card:active { transform: scale(0.96); background: #f8fafc; }
-        .card-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-        .card-title { font-weight: 600; font-size: 14px; color: #334155; }
-
-        /* LISTS */
-        .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: none; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.03); font-size: 15px; font-weight: 500; color: #334155; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9; }
-        .list-btn:active { background: #f8fafc; border-color: #cbd5e1; }
-        .arrow { color: #cbd5e1; font-size: 18px; }
-        .icon-prefix { margin-right: 10px; }
+        .card { background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; }
+        .card-icon { font-size: 32px; display: block; margin-bottom: 5px; }
+        .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* VIDEO PLAYER */
-        .player-view { display: none; flex-direction: column; height: 100vh; background: black; }
-        .video-wrapper { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-        iframe.doc-frame { width: 100%; height: 100%; border: none; flex-grow: 1; background: white; }
-
-        /* SCREENPAL WATERMARK BLOCKER */
-        /* Positions a transparent box over the bottom-right corner */
-        .watermark-blocker {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 130px; /* Covers the logo */
-            height: 50px; /* Covers the bar area */
-            background: transparent; /* Invisible */
-            z-index: 1000; /* Sits on top of iframe */
+        /* --- SPLIT PLAYER VIEW (Video + PDF) --- */
+        .player-view { display: none; flex-direction: column; height: 100vh; background: white; overflow: hidden; }
+        
+        /* 1. Video Container (Fixed Ratio) */
+        .video-wrapper { 
+            position: relative; 
+            width: 100%; 
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            background: black; 
+            flex-shrink: 0; /* Prevents shrinking */
         }
+        
+        /* 2. Lecture PDF Container (Fills rest of screen) */
+        .lec-pdf-container { 
+            flex-grow: 1; 
+            position: relative; 
+            background: white; 
+            display: flex; 
+            flex-direction: column; 
+            border-top: 1px solid #ddd;
+        }
+        
+        /* --- FULL PDF VIEW --- */
+        .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
+
+        /* IFRAMES */
+        iframe.doc-frame { width: 100%; height: 100%; border: none; flex-grow: 1; background: white; }
+        
+        /* DOWNLOAD BAR */
+        .dwn-bar {
+            background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .dwn-btn {
+            background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; 
+            border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block;
+        }
+
+        /* WATERMARK BLOCKER */
+        .watermark-blocker { position: absolute; bottom: 0; right: 0; width: 130px; height: 50px; background: transparent; z-index: 1000; }
 
         /* SUPPORT SECTION */
-        .support-box {
-            grid-column: span 2; /* Full width */
-            margin-top: 20px;
-            background: #f1f5f9;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-        }
-        .support-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #334155; }
-        .support-text { font-size: 12px; color: #64748b; margin-bottom: 15px; }
-        .tg-btn-group { display: flex; gap: 10px; justify-content: center; }
-        .tg-btn {
-            background: #229ED9; color: white; border: none; padding: 10px 15px;
-            border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none;
-        }
+        .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
+        .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
 
-        /* ROTATE BTN */
-        .rotate-btn {
-            position: absolute; top: 10px; right: 10px; z-index: 100;
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid white;
-            padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;
-        }
-
-        /* LOADING */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
-        .spinner { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <div style="color:#64748b; font-size:14px;">Loading Batch Content...</div>
-    </div>
+    <div id="loader">Loading...</div>
 
+    <!-- MAIN INTERFACE -->
     <div id="app-interface" style="display:none;">
         <header>
             <span class="back-btn" onclick="handleBack()">&#8592;</span>
@@ -107,26 +89,40 @@
             <span class="batch-badge" id="batch-name-display">...</span>
         </header>
 
-        <!-- SUBJECTS GRID (With Support Section appended via JS) -->
-        <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
-
-        <div id="view-units" class="view-container"></div>
-        <div id="view-lectures" class="view-container"></div>
-        <div id="view-notes" class="view-container"></div>
+        <div class="content-area">
+            <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
+            <div id="view-units" class="view-container"></div>
+            <div id="view-lectures" class="view-container"></div>
+            <div id="view-notes" class="view-container"></div>
+        </div>
     </div>
 
+    <!-- VIEW: SPLIT PLAYER (Video Top + PDF Bottom) -->
     <div id="view-player" class="player-view">
+        <!-- TOP: VIDEO -->
         <div class="video-wrapper" id="video-container"></div>
-        <button class="rotate-btn" onclick="toggleRotation()">↻ Rotate</button>
+        
+        <!-- BOTTOM: PDF + DOWNLOAD -->
+        <div class="lec-pdf-container" id="lec-pdf-box">
+            <div class="dwn-bar" id="lec-dwn-bar">
+                <span style="font-size:12px; font-weight:bold; color:#64748b;">Lecture Notes</span>
+                <!-- Download Link triggers external browser via export=download -->
+                <a id="lec-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
+            </div>
+            <iframe id="lec-pdf-frame" class="doc-frame" src=""></iframe>
+        </div>
     </div>
 
+    <!-- VIEW: FULL PDF (For Full Unit Notes) -->
     <div id="view-pdf" class="pdf-view">
-        <iframe id="pdf-frame" class="doc-frame" src=""></iframe>
-        <button class="rotate-btn" onclick="toggleRotation()" style="color:black; background:rgba(255,255,255,0.8); border:1px solid #ccc;">↻ Rotate</button>
+        <div class="dwn-bar">
+            <span id="pdf-title-display" style="font-size:12px; font-weight:bold; color:#64748b;">PDF Viewer</span>
+            <a id="full-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
+        </div>
+        <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
     </div>
 
     <script>
-        // --- 1. DATA LOADER ---
         const userBatch = localStorage.getItem('userBatch');
         if (!userBatch) window.location.href = 'index.html';
 
@@ -135,29 +131,24 @@
         script.onload = () => {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-interface').style.display = 'block';
-            if(typeof batchName !== 'undefined') {
-                document.getElementById('batch-name-display').innerText = batchName;
-            }
+            if(typeof batchName !== 'undefined') document.getElementById('batch-name-display').innerText = batchName;
             const savedState = history.state;
             if (savedState) { restoreState(savedState); } else { renderSubjects(); }
         };
-        script.onerror = () => { document.getElementById('loader').innerHTML = "<p style='color:red;text-align:center;'>Error loading batch.</p>"; };
         document.head.appendChild(script);
 
-        // --- 2. NAVIGATION ---
         const views = ['view-subjects', 'view-units', 'view-lectures', 'view-notes'];
         const titleEl = document.getElementById('header-title');
         const backBtn = document.querySelector('.back-btn');
         let currentSubject = null;
-        let isLandscape = false;
 
-        window.onpopstate = function(event) {
-            if (event.state) { restoreState(event.state); } else { renderSubjects(); }
-        };
+        function setOrientation(mode) {
+            if(typeof Android !== 'undefined') Android.setLandscape(mode === 'LANDSCAPE');
+        }
 
         function restoreState(state) {
             closeOverlays();
-            if (state.view === 'view-subjects') { renderSubjects(false); }
+            if (state.view === 'view-subjects') renderSubjects(false);
             else if (state.view === 'view-units') {
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) openSubject(sub, false);
@@ -177,12 +168,9 @@
             document.getElementById('view-player').style.display = 'none';
             document.getElementById('video-container').innerHTML = "";
             document.getElementById('view-pdf').style.display = 'none';
-            document.getElementById('pdf-frame').src = "";
             document.getElementById('app-interface').style.display = 'block';
-            setOrientation(false);
+            setOrientation('PORTRAIT');
         }
-
-        // --- 3. RENDERERS ---
 
         function renderSubjects(pushToHistory = true) {
             switchView('view-subjects', 'Subjects');
@@ -191,7 +179,6 @@
             const container = document.getElementById('view-subjects');
             container.innerHTML = '';
             
-            // 1. Render Cards
             subjects.forEach(sub => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -200,17 +187,15 @@
                 container.appendChild(card);
             });
 
-            // 2. Render Support Section (New!)
             const supportDiv = document.createElement('div');
             supportDiv.className = 'support-box';
             supportDiv.innerHTML = `
-                <div class="support-title">Need Help?</div>
-                <div class="support-text">Chat with our 24/7 support on Telegram</div>
+                <div style="font-size:14px;font-weight:bold;margin-bottom:5px;">Need Help?</div>
+                <div style="font-size:12px;color:#64748b;margin-bottom:15px;">Chat with 24/7 support</div>
                 <div class="tg-btn-group">
                     <a href="https://t.me/affaabbbot" class="tg-btn">Chat Support</a>
                     <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn" style="background:#1e293b">Join Channel</a>
-                </div>
-            `;
+                </div>`;
             container.appendChild(supportDiv);
         }
 
@@ -248,7 +233,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'list-btn';
                 btn.innerHTML = `<span>▶ ${lec.title}</span>`;
-                btn.onclick = () => playVideo(lec);
+                btn.onclick = () => playLecture(lec);
                 container.appendChild(btn);
             });
         }
@@ -264,17 +249,20 @@
                 const btn = document.createElement('button');
                 btn.className = 'list-btn';
                 btn.innerHTML = `<span>📑 ${note.title}</span>`;
-                btn.onclick = () => openPdf(note.pdfId);
+                btn.onclick = () => openFullPdf(note.title, note.pdfId);
                 container.appendChild(btn);
             });
         }
 
-        function playVideo(lec) {
+        // --- NEW: SPLIT PLAYER LOGIC ---
+        function playLecture(lec) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-player').style.display = 'flex';
-            setOrientation(true);
+            
+            // 1. Force Portrait so video is top, pdf is bottom
+            setOrientation('PORTRAIT');
 
-            // Added watermark-blocker div
+            // 2. Load Video
             document.getElementById('video-container').innerHTML = `
                 <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
                     scrolling="no" 
@@ -283,14 +271,41 @@
                 </iframe>
                 <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
             `;
+
+            // 3. Load PDF (if exists)
+            const pdfFrame = document.getElementById('lec-pdf-frame');
+            const dwnBtn = document.getElementById('lec-dwn-btn');
+            const dwnBar = document.getElementById('lec-dwn-bar');
+
+            if (lec.pdfId && lec.pdfId.length > 5) {
+                // Show PDF Section
+                dwnBar.style.display = "flex";
+                pdfFrame.style.display = "block";
+                pdfFrame.src = `https://drive.google.com/file/d/${lec.pdfId}/preview`;
+                // Set Download Link
+                dwnBtn.href = `https://drive.google.com/uc?export=download&id=${lec.pdfId}`;
+            } else {
+                // Hide PDF Section (Show White Screen)
+                dwnBar.style.display = "none";
+                pdfFrame.style.display = "none";
+                pdfFrame.src = "";
+            }
+
             history.pushState({view: 'player'}, "Video", "");
         }
 
-        function openPdf(pdfId) {
+        // --- NEW: FULL PDF LOGIC ---
+        function openFullPdf(title, pdfId) {
             document.getElementById('app-interface').style.display = 'none';
             document.getElementById('view-pdf').style.display = 'flex';
-            setOrientation(true);
-            document.getElementById('pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`;
+            
+            // Force Portrait (Full Screen PDF)
+            setOrientation('PORTRAIT');
+
+            document.getElementById('pdf-title-display').innerText = title;
+            document.getElementById('full-pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`;
+            document.getElementById('full-dwn-btn').href = `https://drive.google.com/uc?export=download&id=${pdfId}`;
+            
             history.pushState({view: 'pdf'}, "PDF", "");
         }
 
@@ -301,16 +316,16 @@
             backBtn.style.display = (viewId === 'view-subjects') ? 'none' : 'block';
         }
 
-        function goBack() { history.back(); }
-
-        function setOrientation(landscape) {
-            isLandscape = landscape;
-            if(typeof Android !== 'undefined') Android.setLandscape(landscape);
-        }
-
-        function toggleRotation() {
-            isLandscape = !isLandscape;
-            setOrientation(isLandscape);
+        function handleBack() {
+            if(document.getElementById('view-pdf').style.display === 'flex' || 
+               document.getElementById('view-player').style.display === 'flex') {
+                history.back();
+                return;
+            }
+            const currentView = views.find(id => document.getElementById(id).style.display !== 'none');
+            if(currentView === 'view-units') renderSubjects(); 
+            else if (currentView === 'view-lectures') openSubject(currentSubject); 
+            else if (currentView === 'view-notes') openSubject(currentSubject);
         }
     </script>
 </body>
