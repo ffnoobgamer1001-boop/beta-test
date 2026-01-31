@@ -4,11 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login</title>
+    <script>
+        // --- 1. BROWSER BLOCKING SECURITY ---
+        // Updated to match your new App Name
+        if (navigator.userAgent !== "DiplomaDostAppv1") {
+            document.write(`
+                <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;">
+                    <h2 style="color:#ef4444;">Access Restricted</h2>
+                    <p>This portal is only accessible via the <b>Diploma Dost</b> Android App.</p>
+                    <hr style="width:50%;border:1px solid #eee;margin:20px 0;">
+                    <p>Want to buy a batch?</p>
+                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Join Telegram Channel</a>
+                </div>
+            `);
+            window.stop();
+            throw new Error("Access Denied: External Browser");
+        }
+    </script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
         .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 85%; max-width: 320px; text-align: center; }
-        h2 { margin-top: 0; color: #1e293b; }
-        p { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #1e293b; margin-bottom: 5px; }
+        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 25px; }
         
         input { 
             width: 100%; padding: 14px; margin-bottom: 15px; 
@@ -26,29 +43,45 @@
         button:disabled { background: #94a3b8; cursor: not-allowed; }
         
         .error { color: #ef4444; margin-top: 15px; font-size: 14px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px;}
-        .footer { margin-top: 20px; font-size: 12px; color: #94a3b8; }
+        
+        /* Telegram Section */
+        .tg-section { margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .tg-text { font-size: 13px; color: #64748b; margin-bottom: 10px; line-height: 1.4; }
+        .tg-btn { 
+            display: inline-flex; align-items: center; justify-content: center;
+            background-color: #229ED9; color: white; 
+            text-decoration: none; padding: 10px 20px; 
+            border-radius: 50px; font-size: 14px; font-weight: bold; 
+            box-shadow: 0 2px 5px rgba(34, 158, 217, 0.3);
+        }
+        .tg-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>Welcome</h2>
-        <p>Enter your unique Passkey to access your batch content.</p>
+        <h2>Diploma Dost</h2>
+        <div class="subtitle">Enter Passkey to access content</div>
         
         <input type="text" id="passkey" placeholder="Enter Passkey (e.g. CIV4-001)" autocomplete="off">
         <button onclick="verify()" id="btn">Enter Classroom</button>
         
         <div class="error" id="msg"></div>
-        <div class="footer">Secure Student Portal</div>
+
+        <div class="tg-section">
+            <div class="tg-text">Not purchased a batch yet?<br>Join our channel to buy & get a key.</div>
+            <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn">
+                Join Telegram Channel
+            </a>
+        </div>
     </div>
 
     <script>
-        // 1. AUTO-LOGIN: Check if student is already verified
         if(localStorage.getItem('isVerified') === 'true') {
             window.location.href = 'app.html';
         }
 
         // TODO: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK7y9BWdQNALMzjN0OwC6UMwYy2woyLgNkuDtHveCWgo5b-Woyu2QF4BSCHhKjX4A/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_YOUR_SCRIPT_ID_HERE/exec";
 
         function verify() {
             const keyInput = document.getElementById('passkey');
@@ -61,7 +94,6 @@
                 return;
             }
 
-            // UI Loading State
             btn.disabled = true;
             btn.innerText = "Verifying...";
             msg.style.display = 'none';
@@ -70,18 +102,14 @@
             .then(res => res.json())
             .then(data => {
                 if(data.result === 'success') {
-                    // SUCCESS: Save credentials and redirect
                     localStorage.setItem('isVerified', 'true');
-                    localStorage.setItem('userBatch', data.batch); // Saves "CIV4", "EC2", etc.
+                    localStorage.setItem('userBatch', data.batch);
                     
-                    // Notify Android App (if running in app)
                     if(typeof Android !== 'undefined') {
                         Android.onLoginSuccess();
                     }
-
                     window.location.href = 'app.html';
                 } else {
-                    // FAIL
                     showError("Invalid or Expired Passkey");
                     btn.disabled = false;
                     btn.innerText = "Enter Classroom";
