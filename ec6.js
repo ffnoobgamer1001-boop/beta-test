@@ -11,8 +11,8 @@ const subjects = [
         lectures: [
           {
             title: "Lec 1: Introduction to Product Design",
-            screenpalId: "",
-            pdfId: ""
+            screenpalId: "cOVwjwn34HQ",
+            pdfId: "1mNC7jBHpwV1Y9qnMDGMNWeYTbJGIIA2W"
           },
           // add more lectures here...
         ]
