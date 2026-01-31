@@ -10,7 +10,7 @@ const subjects = [
             {
                 name: "Unit 1: Semiconductor Physics",
                 lectures: [
-                    { title: "Lec 1: Diodes", screenpalId: "cOVvXsn3xOu" },
+                    { title: "Lec 1: Diodes", screenpalId: "cOVwhjn344T" },
                     { title: "Lec 2: Rectifiers", screenpalId: "cOVvXsn3xOu" }
                 ]
             },
