@@ -3,7 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coaching App</title>
+    <title>Diploma Dost</title>
+    <script>
+        // --- BROWSER BLOCKING SECURITY ---
+        if (navigator.userAgent !== "DiplomaDostAppv1") {
+            document.write(`
+                <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;">
+                    <h2 style="color:#ef4444;">Access Restricted</h2>
+                    <p>This content is protected and only available in the <b>Diploma Dost</b> Android App.</p>
+                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;margin-top:20px;">Join Telegram Channel</a>
+                </div>
+            `);
+            window.stop();
+            throw new Error("Access Denied");
+        }
+    </script>
+    <!-- ... (Rest of your app.html logic remains identical to previous version) ... -->
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; }
@@ -11,6 +26,7 @@
         header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
         .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
         h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
 
         /* VIEWS */
         .view-container { padding: 15px; display: none; }
@@ -21,6 +37,8 @@
         .card-icon { font-size: 32px; display: block; margin-bottom: 5px; }
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         
+        .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+
         /* PLAYER & PDF */
         .player-view, .pdf-view { display: none; flex-direction: column; height: 100vh; background: black; }
         .video-wrapper { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
@@ -45,6 +63,7 @@
         <header>
             <span class="back-btn" onclick="goBack()">&#8592;</span>
             <h1 id="header-title">Subjects</h1>
+            <span class="batch-badge" id="batch-name-display">...</span>
         </header>
 
         <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
@@ -76,6 +95,9 @@
         script.onload = () => {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-interface').style.display = 'block';
+            if(typeof batchName !== 'undefined') {
+                document.getElementById('batch-name-display').innerText = batchName;
+            }
             
             // Restore state if page was reloaded (Fixes Reset Bug)
             const savedState = history.state;
@@ -112,7 +134,6 @@
             if (state.view === 'view-subjects') {
                 renderSubjects(false);
             } else if (state.view === 'view-units') {
-                // We need the subject object. Ideally we store IDs, but simplified:
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) openSubject(sub, false);
             } else if (state.view === 'view-lectures') {
@@ -168,9 +189,7 @@
             });
 
             const notesBtn = document.createElement('button');
-            notesBtn.className = 'list-btn';
-            notesBtn.style.background = '#fff1f2';
-            notesBtn.style.color = '#e11d48';
+            notesBtn.className = 'list-btn notes-section-btn';
             notesBtn.innerHTML = `<span>📄 PDF Notes Section</span> <span>›</span>`;
             notesBtn.onclick = () => openNotesList(sub);
             container.appendChild(notesBtn);
@@ -265,5 +284,3 @@
     </script>
 </body>
 </html>
-
-
