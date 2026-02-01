@@ -28,7 +28,8 @@
         header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
         .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
         h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
+        .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
+
         .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
         .view-container { display: none; }
 
@@ -70,6 +71,31 @@
         }
         .refer-code { font-family: monospace; font-size: 28px; font-weight: bold; letter-spacing: 3px; }
         .copy-hint { font-size: 11px; opacity: 0.8; margin-top: 5px; }
+        
+        .know-more-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        /* Support & Logout Styles */
+        .support-box { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
+        .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
+        
+        .logout-btn {
+            background: #fff1f2; color: #e11d48; border: 1px solid #fda4af;
+            padding: 15px; width: 100%; border-radius: 12px;
+            font-weight: bold; font-size: 14px; cursor: pointer;
+            margin-bottom: 20px;
+        }
 
         /* --- EXISTING STYLES --- */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
@@ -94,10 +120,6 @@
         .dwn-bar { background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .dwn-btn { background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; }
         
-        .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
-        .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
-
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
@@ -131,7 +153,22 @@
                     <div class="refer-code" id="user-refer-code">LOADING</div>
                 </div>
                 <div class="copy-hint">Share this code</div>
+                <!-- Updated Link -->
+                <a href="https://t.me/c/3811237041/5" class="know-more-btn">Know More</a>
             </div>
+
+            <!-- Support Section (New) -->
+            <div class="support-box">
+                <div style="font-size:14px;font-weight:bold;margin-bottom:5px;">Need Help?</div>
+                <div style="font-size:12px;color:#64748b;margin-bottom:15px;">Chat with 24/7 support</div>
+                <div class="tg-btn-group">
+                    <a href="https://t.me/affaabbbot" class="tg-btn">Chat Support</a>
+                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn" style="background:#1e293b">Join Channel</a>
+                </div>
+            </div>
+
+            <!-- Logout Button (New) -->
+            <button class="logout-btn" onclick="logout()">Log Out</button>
         </div>
 
         <!-- 2. SUBJECTS GRID -->
@@ -268,6 +305,14 @@
             setOrientation('PORTRAIT');
         }
 
+        // --- NEW LOGOUT FUNCTION ---
+        function logout() {
+            if(confirm("Are you sure you want to logout? All data will be cleared.")) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
         // --- VIEW FUNCTIONS ---
 
         function showDashboard(push = true) {
@@ -291,17 +336,6 @@
                 card.onclick = () => openSubject(sub);
                 container.appendChild(card);
             });
-
-            const supportDiv = document.createElement('div');
-            supportDiv.className = 'support-box';
-            supportDiv.innerHTML = `
-                <div style="font-size:14px;font-weight:bold;margin-bottom:5px;">Need Help?</div>
-                <div style="font-size:12px;color:#64748b;margin-bottom:15px;">Chat with 24/7 support</div>
-                <div class="tg-btn-group">
-                    <a href="https://t.me/affaabbbot" class="tg-btn">Chat Support</a>
-                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn" style="background:#1e293b">Join Channel</a>
-                </div>`;
-            container.appendChild(supportDiv);
         }
 
         function openSubject(sub, push = true) {
