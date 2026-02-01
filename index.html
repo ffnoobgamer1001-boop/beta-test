@@ -1,191 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diploma Dost Login</title>
-    <script>
-        // 1. BROWSER BLOCKER: Only allow "DiplomaDostAppv1"
-        if (navigator.userAgent !== "DiplomaDostAppv1") {
-            document.write(`
-                <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;">
-                    <h2 style="color:#ef4444;">Access Restricted</h2>
-                    <p>This portal is only accessible via the <b>Diploma Dost</b> Android App.</p>
-                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;margin-top:20px;">Join Telegram Channel</a>
-                </div>
-            `);
-            window.stop();
-            throw new Error("Access Denied");
+<!-- ... (Keep Head and Styles same as before) ... -->
+<!-- Just showing the Script part that changed -->
+
+<script>
+    // ... UserAgent check ...
+
+    // HARDCODED FALLBACK 
+    const FALLBACK_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzukFBsABkTd-N84j_YnFfL-cfUHEXkuUC9ez904sROC9EJWlNF_2ztyy7D0rM2uH6F/exec"; 
+
+    window.onload = function() {
+        const savedPasskey = localStorage.getItem('userPasskey');
+        if (savedPasskey) {
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('session-overlay').style.display = 'flex';
+            checkSession(savedPasskey);
         }
-    </script>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); width: 85%; max-width: 320px; text-align: center; }
-        h2 { margin-top: 0; color: #1e293b; margin-bottom: 5px; }
-        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 25px; }
-        
-        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s; }
-        input:focus { border-color: #2563eb; }
-        
-        button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.98); background: #1d4ed8; }
-        button:disabled { background: #94a3b8; cursor: not-allowed; }
-        
-        .error { color: #ef4444; margin-top: 15px; font-size: 13px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px; text-align: left;}
-        
-        /* Loading Overlay for Session Check */
-        #session-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f0f2f5; display: flex; justify-content: center; align-items: center;
-            z-index: 100; flex-direction: column; display: none;
+    };
+
+    function checkSession(passkey) {
+        // ... (Same device ID logic) ...
+        let deviceId = "browser_user";
+        let scriptUrl = FALLBACK_SCRIPT_URL;
+        if (typeof Android !== 'undefined') {
+             try { deviceId = Android.getDeviceId(); scriptUrl = Android.getScriptUrl(); } catch(e){}
         }
-        
-        /* Telegram Section */
-        .tg-section { margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
-        .tg-text { font-size: 13px; color: #64748b; margin-bottom: 10px; line-height: 1.4; }
-        .tg-btn { display: inline-flex; align-items: center; justify-content: center; background-color: #229ED9; color: white; text-decoration: none; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 5px rgba(34, 158, 217, 0.3); }
-    </style>
-</head>
-<body>
-    
-    <!-- Session Loader -->
-    <div id="session-overlay">
-        <div style="font-size: 16px; color: #555; font-weight: bold;">Verifying Session...</div>
-    </div>
 
-    <div class="card" id="login-card">
-        <h2>Diploma Dost</h2>
-        <div class="subtitle">Enter Passkey to login</div>
-        
-        <input type="text" id="passkey" placeholder="Enter Passkey (e.g. CIV4-001)" autocomplete="off">
-        <button onclick="verify()" id="btn">Enter Classroom</button>
-        
-        <div class="error" id="msg"></div>
-
-        <div class="tg-section">
-            <div class="tg-text">No Passkey?<br>Join channel to purchase batch.</div>
-            <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn">Join Telegram Channel</a>
-        </div>
-    </div>
-
-    <script>
-        // HARDCODED FALLBACK (Update this with your Google Script URL)
-        const FALLBACK_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw486JTOsLW1pKeWYxXxP3Bu8CZSqojPKpqp1xQ2z-53CpmtDfrQ7cBq7tzMMuUjm1A/exec"; 
-
-        // --- NEW: STRICT SESSION CHECK ---
-        window.onload = function() {
-            const savedPasskey = localStorage.getItem('userPasskey');
-            
-            if (savedPasskey) {
-                // If user has logged in before, don't show login form yet.
-                // Check server if they are still valid.
-                document.getElementById('login-card').style.display = 'none';
-                document.getElementById('session-overlay').style.display = 'flex';
+        fetch(scriptUrl + "?passkey=" + passkey + "&deviceId=" + deviceId)
+        .then(res => res.json())
+        .then(data => {
+            if(data.result === 'success') {
+                localStorage.setItem('userBatch', data.batch);
+                // NEW: SAVE REFERRAL CODE
+                localStorage.setItem('referralCode', data.referralCode);
                 
-                checkSession(savedPasskey);
+                window.location.href = 'app.html';
+            } else {
+                forceLogout(data.message);
             }
-        };
+        })
+        .catch(err => forceLogout("Connection Failed"));
+    }
 
-        function checkSession(passkey) {
-            let deviceId = "browser_user";
-            let scriptUrl = FALLBACK_SCRIPT_URL;
+    function verify() {
+        // ... (Same input logic) ...
+        const key = document.getElementById('passkey').value.trim();
+        // ...
+        
+        let deviceId = "browser_user";
+        let scriptUrl = FALLBACK_SCRIPT_URL;
+        if (typeof Android !== 'undefined') {
+             try { deviceId = Android.getDeviceId(); scriptUrl = Android.getScriptUrl(); } catch(e){}
+        }
 
-            if (typeof Android !== 'undefined') {
-                try {
-                    deviceId = Android.getDeviceId();
-                    scriptUrl = Android.getScriptUrl();
-                } catch(e) { console.log("Interface Error"); }
+        fetch(scriptUrl + "?passkey=" + key + "&deviceId=" + deviceId)
+        .then(res => res.json())
+        .then(data => {
+            if(data.result === 'success') {
+                localStorage.setItem('isVerified', 'true');
+                localStorage.setItem('userBatch', data.batch);
+                localStorage.setItem('userPasskey', key);
+                
+                // NEW: SAVE REFERRAL CODE
+                localStorage.setItem('referralCode', data.referralCode);
+
+                if(typeof Android !== 'undefined') Android.onLoginSuccess();
+                window.location.href = 'app.html';
+            } else {
+                showError(data.message || "Invalid Key");
+                // ... reset buttons ...
             }
-
-            // Silent Re-Verification
-            fetch(scriptUrl + "?passkey=" + passkey + "&deviceId=" + deviceId)
-            .then(res => res.json())
-            .then(data => {
-                if(data.result === 'success') {
-                    // SESSION VALID: Redirect to content
-                    // Update batch just in case it changed
-                    localStorage.setItem('userBatch', data.batch);
-                    window.location.href = 'app.html';
-                } else {
-                    // SESSION INVALID (Device ID changed or Expired): Force Logout
-                    forceLogout(data.message || "Session Expired");
-                }
-            })
-            .catch(err => {
-                // If internet fails, we show login screen to let them try manually or retry
-                // OR you can allow offline access here if you prefer.
-                // Currently strictly ensuring connection.
-                forceLogout("Connection Failed. Please Re-login.");
-            });
-        }
-
-        function forceLogout(reason) {
-            localStorage.removeItem('isVerified');
-            localStorage.removeItem('userPasskey');
-            localStorage.removeItem('userBatch');
-            
-            document.getElementById('session-overlay').style.display = 'none';
-            document.getElementById('login-card').style.display = 'block';
-            showError(reason);
-        }
-
-        function verify() {
-            const keyInput = document.getElementById('passkey');
-            const key = keyInput.value.trim();
-            const btn = document.getElementById('btn');
-            
-            if(!key) { showError("Please enter a passkey"); return; }
-
-            btn.disabled = true;
-            btn.innerText = "Verifying Device...";
-            
-            // 1. GET DEVICE ID & SCRIPT URL FROM ANDROID APP
-            let deviceId = "browser_user";
-            let scriptUrl = FALLBACK_SCRIPT_URL;
-
-            if (typeof Android !== 'undefined') {
-                try {
-                    deviceId = Android.getDeviceId(); // Gets unique Android ID
-                    // We prefer the script URL from the App code if available
-                    const appScript = Android.getScriptUrl();
-                    if(appScript && appScript.startsWith("http")) scriptUrl = appScript;
-                } catch(e) { console.log("Interface Error"); }
-            }
-
-            // 2. CALL GOOGLE SCRIPT
-            fetch(scriptUrl + "?passkey=" + key + "&deviceId=" + deviceId)
-            .then(res => res.json())
-            .then(data => {
-                if(data.result === 'success') {
-                    // Success!
-                    localStorage.setItem('isVerified', 'true');
-                    localStorage.setItem('userBatch', data.batch);
-                    // SAVE PASSKEY FOR FUTURE CHECKS
-                    localStorage.setItem('userPasskey', key);
-                    
-                    if(typeof Android !== 'undefined') {
-                        Android.onLoginSuccess(); // Saves local timestamp
-                    }
-                    window.location.href = 'app.html';
-                } else {
-                    // Error (Device Mismatch or Expired)
-                    showError(data.message || "Invalid Passkey");
-                    btn.disabled = false;
-                    btn.innerText = "Enter Classroom";
-                }
-            })
-            .catch(err => {
-                showError("Connection Error. Check Internet.");
-                btn.disabled = false;
-                btn.innerText = "Enter Classroom";
-            });
-        }
-
-        function showError(text) {
-            const msg = document.getElementById('msg');
-            msg.innerText = text;
-            msg.style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+        })
+        // ... catch errors ...
+    }
+    
+    // ... forceLogout and showError functions ...
+</script>
