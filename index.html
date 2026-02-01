@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login</title>
+    <title>Diploma Dost Login</title>
     <script>
-        // --- 1. BROWSER BLOCKING SECURITY ---
-        // Updated to match your new App Name
+        // 1. BROWSER BLOCKER: Only allow "DiplomaDostAppv1"
         if (navigator.userAgent !== "DiplomaDostAppv1") {
             document.write(`
                 <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;text-align:center;padding:20px;">
                     <h2 style="color:#ef4444;">Access Restricted</h2>
                     <p>This portal is only accessible via the <b>Diploma Dost</b> Android App.</p>
-                    <hr style="width:50%;border:1px solid #eee;margin:20px 0;">
-                    <p>Want to buy a batch?</p>
-                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Join Telegram Channel</a>
+                    <a href="https://t.me/+lD3Z3iBSLj9lZDY9" style="background:#229ED9;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;margin-top:20px;">Join Telegram Channel</a>
                 </div>
             `);
             window.stop();
-            throw new Error("Access Denied: External Browser");
+            throw new Error("Access Denied");
         }
     </script>
     <style>
@@ -27,40 +24,25 @@
         h2 { margin-top: 0; color: #1e293b; margin-bottom: 5px; }
         .subtitle { color: #64748b; font-size: 14px; margin-bottom: 25px; }
         
-        input { 
-            width: 100%; padding: 14px; margin-bottom: 15px; 
-            border: 2px solid #e2e8f0; border-radius: 8px; 
-            box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s;
-        }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s; }
         input:focus { border-color: #2563eb; }
         
-        button { 
-            width: 100%; padding: 14px; background: #2563eb; color: white; 
-            border: none; border-radius: 8px; font-size: 16px; font-weight: 600; 
-            cursor: pointer; transition: 0.2s; 
-        }
+        button { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         button:active { transform: scale(0.98); background: #1d4ed8; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
         
-        .error { color: #ef4444; margin-top: 15px; font-size: 14px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px;}
+        .error { color: #ef4444; margin-top: 15px; font-size: 13px; display: none; background: #fee2e2; padding: 10px; border-radius: 6px; text-align: left;}
         
         /* Telegram Section */
         .tg-section { margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
         .tg-text { font-size: 13px; color: #64748b; margin-bottom: 10px; line-height: 1.4; }
-        .tg-btn { 
-            display: inline-flex; align-items: center; justify-content: center;
-            background-color: #229ED9; color: white; 
-            text-decoration: none; padding: 10px 20px; 
-            border-radius: 50px; font-size: 14px; font-weight: bold; 
-            box-shadow: 0 2px 5px rgba(34, 158, 217, 0.3);
-        }
-        .tg-btn:active { transform: scale(0.98); }
+        .tg-btn { display: inline-flex; align-items: center; justify-content: center; background-color: #229ED9; color: white; text-decoration: none; padding: 10px 20px; border-radius: 50px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 5px rgba(34, 158, 217, 0.3); }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>Diploma Dost</h2>
-        <div class="subtitle">Enter Passkey to access content</div>
+        <div class="subtitle">Enter Passkey to login</div>
         
         <input type="text" id="passkey" placeholder="Enter Passkey (e.g. CIV4-001)" autocomplete="off">
         <button onclick="verify()" id="btn">Enter Classroom</button>
@@ -68,49 +50,59 @@
         <div class="error" id="msg"></div>
 
         <div class="tg-section">
-            <div class="tg-text">Not purchased a batch yet?<br>Join our channel to buy & get a key.</div>
-            <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn">
-                Join Telegram Channel
-            </a>
+            <div class="tg-text">No Passkey?<br>Join channel to purchase batch.</div>
+            <a href="https://t.me/+lD3Z3iBSLj9lZDY9" class="tg-btn">Join Telegram Channel</a>
         </div>
     </div>
 
     <script>
+        // Auto-login check
         if(localStorage.getItem('isVerified') === 'true') {
             window.location.href = 'app.html';
         }
 
-        // TODO: PASTE YOUR GOOGLE APPS SCRIPT URL HERE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK7y9BWdQNALMzjN0OwC6UMwYy2woyLgNkuDtHveCWgo5b-Woyu2QF4BSCHhKjX4A/exec";
+        // HARDCODED FALLBACK (Update this just in case, though App provides it)
+        const FALLBACK_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec"; 
 
         function verify() {
             const keyInput = document.getElementById('passkey');
             const key = keyInput.value.trim();
             const btn = document.getElementById('btn');
-            const msg = document.getElementById('msg');
             
-            if(!key) {
-                showError("Please enter a passkey");
-                return;
-            }
+            if(!key) { showError("Please enter a passkey"); return; }
 
             btn.disabled = true;
-            btn.innerText = "Verifying...";
-            msg.style.display = 'none';
+            btn.innerText = "Verifying Device...";
+            
+            // 1. GET DEVICE ID & SCRIPT URL FROM ANDROID APP
+            let deviceId = "browser_user";
+            let scriptUrl = FALLBACK_SCRIPT_URL;
 
-            fetch(SCRIPT_URL + "?passkey=" + key)
+            if (typeof Android !== 'undefined') {
+                try {
+                    deviceId = Android.getDeviceId(); // Gets unique Android ID
+                    // We prefer the script URL from the App code if available
+                    const appScript = Android.getScriptUrl();
+                    if(appScript && appScript.startsWith("http")) scriptUrl = appScript;
+                } catch(e) { console.log("Interface Error"); }
+            }
+
+            // 2. CALL GOOGLE SCRIPT
+            fetch(scriptUrl + "?passkey=" + key + "&deviceId=" + deviceId)
             .then(res => res.json())
             .then(data => {
                 if(data.result === 'success') {
+                    // Success!
                     localStorage.setItem('isVerified', 'true');
                     localStorage.setItem('userBatch', data.batch);
                     
                     if(typeof Android !== 'undefined') {
-                        Android.onLoginSuccess();
+                        Android.onLoginSuccess(); // Saves local timestamp
                     }
                     window.location.href = 'app.html';
                 } else {
-                    showError("Invalid or Expired Passkey");
+                    // Error (Device Mismatch or Expired)
+                    showError(data.message || "Invalid Passkey");
                     btn.disabled = false;
                     btn.innerText = "Enter Classroom";
                 }
