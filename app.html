@@ -14,7 +14,6 @@
             const target = e.target.closest('a');
             if (target) {
                 const href = target.getAttribute('href');
-                // Allow Download, Telegram, and Hash links
                 if (href && !href.includes('t.me') && !href.includes('export=download') && !href.startsWith('#') && !href.includes('javascript')) {
                     e.preventDefault();
                 }
@@ -33,85 +32,35 @@
         .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
         .view-container { display: none; }
 
-        /* --- DASHBOARD STYLES --- */
+        /* DASHBOARD */
         .dashboard-container { display: flex; flex-direction: column; gap: 20px; }
-        
-        .hero-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            padding: 25px 20px;
-            border-radius: 16px;
-            border: none;
-            text-align: left;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
+        .hero-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 25px 20px; border-radius: 16px; border: none; text-align: left; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); cursor: pointer; position: relative; overflow: hidden; }
         .hero-btn h2 { margin: 0; font-size: 20px; }
         .hero-btn p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
         .hero-arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; }
 
-        .refer-card {
-            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-        }
+        .refer-card { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); color: white; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
         .refer-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
         .refer-desc { font-size: 13px; opacity: 0.9; margin-bottom: 15px; line-height: 1.4; }
-        .refer-code-box {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px dashed rgba(255,255,255,0.5);
-            margin: 10px 0;
-        }
+        .refer-code-box { background: rgba(255, 255, 255, 0.2); padding: 12px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.5); margin: 10px 0; }
         .refer-code { font-family: monospace; font-size: 28px; font-weight: bold; letter-spacing: 3px; }
         .copy-hint { font-size: 11px; opacity: 0.8; margin-top: 5px; }
-        
-        .know-more-btn {
-            display: inline-block;
-            margin-top: 15px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            border: 1px solid rgba(255,255,255,0.4);
-        }
+        .know-more-btn { display: inline-block; margin-top: 15px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid rgba(255,255,255,0.4); }
 
-        /* Support & Logout Styles */
-        .support-box { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
-        .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
-        
-        .logout-btn {
-            background: #fff1f2; color: #e11d48; border: 1px solid #fda4af;
-            padding: 15px; width: 100%; border-radius: 12px;
-            font-weight: bold; font-size: 14px; cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        /* --- EXISTING STYLES --- */
+        /* LISTS */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .card { background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; }
         .card-icon { font-size: 32px; display: block; margin-bottom: 5px; }
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* PLAYER & PDF VIEWS */
+        /* PLAYER & PDF */
         .player-view, .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }
         .video-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; background: black; flex-shrink: 0; }
         .lec-pdf-container { flex-grow: 1; position: relative; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
         .pdf-frame-wrapper { position: relative; flex-grow: 1; }
         iframe.doc-frame { width: 100%; height: 100%; border: none; }
         
-        /* BLOCKERS */
         .watermark-blocker { position: absolute; bottom: 0; right: 0; width: 120px; height: 50px; background: transparent; z-index: 1000; display: none; }
         @media (orientation: landscape) { .watermark-blocker { display: block; } }
         .pdf-popout-blocker { position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: transparent; z-index: 2147483647; }
@@ -120,12 +69,51 @@
         .dwn-bar { background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .dwn-btn { background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; }
         
+        .support-box { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
+        .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
+        
+        .logout-btn { background: #fff1f2; color: #e11d48; border: 1px solid #fda4af; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 20px; }
+
+        /* --- CUSTOM LOGOUT MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 5000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(2px);
+        }
+        .modal-box {
+            background: white; padding: 25px; border-radius: 16px;
+            width: 80%; max-width: 320px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-title { font-size: 18px; font-weight: bold; color: #1e293b; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 15px; justify-content: center; }
+        .modal-btn {
+            padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer;
+        }
+        .modal-btn.cancel { background: #f1f5f9; color: #64748b; }
+        .modal-btn.confirm { background: #ef4444; color: white; }
+
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
     <div id="loader">Loading...</div>
+
+    <!-- CUSTOM LOGOUT MODAL -->
+    <div id="logout-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">Log Out?</div>
+            <div class="modal-text">Are you sure you want to log out?<br>This will clear your app data.</div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm" onclick="confirmLogout()">Log Out</button>
+            </div>
+        </div>
+    </div>
 
     <!-- HEADER -->
     <header id="app-header" style="display:none;">
@@ -135,29 +123,23 @@
 
     <div class="content-area" id="main-content" style="display:none;">
         
-        <!-- 1. DASHBOARD (HOME) -->
+        <!-- DASHBOARD -->
         <div id="view-dashboard" class="view-container dashboard-container" style="display: flex;">
-            <!-- Main Action -->
             <button class="hero-btn" onclick="renderSubjects()">
                 <h2>Go to My Batch</h2>
                 <p>Access your lectures & notes</p>
                 <span class="hero-arrow">→</span>
             </button>
 
-            <!-- Refer & Earn -->
             <div class="refer-card">
                 <div class="refer-title">Refer & Earn ₹40</div>
-                <div class="refer-desc">Share your unique code with friends. They get a discount, you get cash!</div>
-                
+                <div class="refer-desc">Share your unique code with friends.</div>
                 <div class="refer-code-box">
                     <div class="refer-code" id="user-refer-code">LOADING</div>
                 </div>
-                <div class="copy-hint">Share this code</div>
-                <!-- Updated Link -->
                 <a href="https://t.me/c/3811237041/5" class="know-more-btn">Know More</a>
             </div>
 
-            <!-- Support Section (New) -->
             <div class="support-box">
                 <div style="font-size:14px;font-weight:bold;margin-bottom:5px;">Need Help?</div>
                 <div style="font-size:12px;color:#64748b;margin-bottom:15px;">Chat with 24/7 support</div>
@@ -167,20 +149,18 @@
                 </div>
             </div>
 
-            <!-- Logout Button (New) -->
+            <!-- Logout triggers custom modal now -->
             <button class="logout-btn" onclick="logout()">Log Out</button>
         </div>
 
-        <!-- 2. SUBJECTS GRID -->
+        <!-- LISTS -->
         <div id="view-subjects" class="view-container grid"></div>
-
-        <!-- 3. UNITS & LECTURES -->
         <div id="view-units" class="view-container"></div>
         <div id="view-lectures" class="view-container"></div>
         <div id="view-notes" class="view-container"></div>
     </div>
 
-    <!-- PLAYER & PDF OVERLAYS -->
+    <!-- PLAYER -->
     <div id="view-player" class="player-view">
         <div class="video-wrapper" id="video-container"></div>
         <button class="rotate-btn" onclick="toggleRotation()">↻ Rotate</button>
@@ -196,6 +176,7 @@
         </div>
     </div>
 
+    <!-- PDF -->
     <div id="view-pdf" class="pdf-view">
         <div class="dwn-bar">
             <span id="pdf-title-display" style="font-size:12px; font-weight:bold; color:#64748b;">PDF Viewer</span>
@@ -220,13 +201,9 @@
             document.getElementById('loader').style.display = 'none';
             document.getElementById('app-header').style.display = 'flex';
             document.getElementById('main-content').style.display = 'block';
-            
-            // Set Referral Code
             document.getElementById('user-refer-code').innerText = referCode;
 
-            // Handle Navigation History
             if (!history.state) {
-                // Initial Load -> Show Dashboard
                 history.replaceState({view: 'view-dashboard'}, "Home", "");
             } else {
                 restoreState(history.state);
@@ -240,6 +217,21 @@
         let currentSubject = null;
         let isLandscape = false;
 
+        // --- NEW LOGOUT LOGIC ---
+        function logout() {
+            document.getElementById('logout-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('logout-modal').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // --- EXISTING LOGIC ---
         function setOrientation(mode) {
             isLandscape = (mode === 'LANDSCAPE');
             if(typeof Android !== 'undefined') Android.setLandscape(isLandscape);
@@ -261,10 +253,8 @@
         };
 
         function restoreState(state) {
-            // Orientation
             if (state.landscape) setOrientation('LANDSCAPE'); else setOrientation('PORTRAIT');
 
-            // Views
             if (state.view === 'view-dashboard') showDashboard(false);
             else if (state.view === 'view-subjects') renderSubjects(false);
             else if (state.view === 'view-units') {
@@ -280,12 +270,8 @@
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) { currentSubject = sub; openNotesList(sub, false); }
             }
-            // Overlays
-            else if (state.view === 'player') {
-                showOverlay('view-player');
-            } else if (state.view === 'pdf') {
-                showOverlay('view-pdf');
-            }
+            else if (state.view === 'player') showOverlay('view-player');
+            else if (state.view === 'pdf') showOverlay('view-pdf');
         }
 
         function showOverlay(id) {
@@ -297,23 +283,12 @@
 
         function closeOverlays() {
             document.getElementById('view-player').style.display = 'none';
-            document.getElementById('video-container').innerHTML = ""; // Stop Video
+            document.getElementById('video-container').innerHTML = ""; 
             document.getElementById('view-pdf').style.display = 'none';
-            
             document.getElementById('app-header').style.display = 'flex';
             document.getElementById('main-content').style.display = 'block';
             setOrientation('PORTRAIT');
         }
-
-        // --- NEW LOGOUT FUNCTION ---
-        function logout() {
-            if(confirm("Are you sure you want to logout? All data will be cleared.")) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            }
-        }
-
-        // --- VIEW FUNCTIONS ---
 
         function showDashboard(push = true) {
             closeOverlays();
@@ -325,10 +300,8 @@
             closeOverlays();
             switchView('view-subjects', 'My Batch', true);
             if(push) history.pushState({view: 'view-subjects'}, "Subjects", "");
-            
             const container = document.getElementById('view-subjects');
             container.innerHTML = '';
-            
             subjects.forEach(sub => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -342,10 +315,8 @@
             currentSubject = sub;
             switchView('view-units', sub.name, true);
             if(push) history.pushState({view: 'view-units', subName: sub.name}, sub.name, "");
-
             const container = document.getElementById('view-units');
             container.innerHTML = '';
-            
             if(sub.units) sub.units.forEach(unit => {
                 const btn = document.createElement('button');
                 btn.className = 'list-btn';
@@ -353,7 +324,6 @@
                 btn.onclick = () => openUnit(unit);
                 container.appendChild(btn);
             });
-
             const notesBtn = document.createElement('button');
             notesBtn.className = 'list-btn notes-section-btn';
             notesBtn.innerHTML = `<span>📄 PDF Notes Section</span> <span>›</span>`;
@@ -364,10 +334,8 @@
         function openUnit(unit, push = true) {
             switchView('view-lectures', unit.name, true);
             if(push) history.pushState({view: 'view-lectures', subName: currentSubject.name, unitName: unit.name}, unit.name, "");
-
             const container = document.getElementById('view-lectures');
             container.innerHTML = '';
-            
             if(unit.lectures) unit.lectures.forEach(lec => {
                 const btn = document.createElement('button');
                 btn.className = 'list-btn';
@@ -380,10 +348,8 @@
         function openNotesList(sub, push = true) {
             switchView('view-notes', 'PDF Notes', true);
             if(push) history.pushState({view: 'view-notes', subName: sub.name}, "Notes", "");
-
             const container = document.getElementById('view-notes');
             container.innerHTML = '';
-            
             if(sub.notes) sub.notes.forEach(note => {
                 const btn = document.createElement('button');
                 btn.className = 'list-btn';
@@ -393,52 +359,37 @@
             });
         }
 
-        // --- PLAYERS ---
-
         function playLecture(lec) {
             showOverlay('view-player');
             setOrientation('PORTRAIT');
-
             document.getElementById('video-container').innerHTML = `
                 <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
-                    scrolling="no" 
-                    src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
-                    allowfullscreen="true">
+                    scrolling="no" src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" allowfullscreen="true">
                 </iframe>
                 <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
             `;
-
             const pdfFrame = document.getElementById('lec-pdf-frame');
             const dwnBtn = document.getElementById('lec-dwn-btn');
             const dwnBar = document.getElementById('lec-dwn-bar');
             const pdfWrapper = document.querySelector('#lec-pdf-box .pdf-frame-wrapper');
-
             if (lec.pdfId && lec.pdfId.length > 5) {
-                dwnBar.style.display = "flex";
-                pdfWrapper.style.display = "block";
+                dwnBar.style.display = "flex"; pdfWrapper.style.display = "block";
                 pdfFrame.src = `https://drive.google.com/file/d/${lec.pdfId}/preview`;
                 dwnBtn.href = `https://drive.google.com/uc?export=download&id=${lec.pdfId}`;
             } else {
-                dwnBar.style.display = "none";
-                pdfWrapper.style.display = "none";
-                pdfFrame.src = "";
+                dwnBar.style.display = "none"; pdfWrapper.style.display = "none"; pdfFrame.src = "";
             }
-
             history.pushState({view: 'player', landscape: false}, "Video", "");
         }
 
         function openFullPdf(title, pdfId) {
             showOverlay('view-pdf');
             setOrientation('PORTRAIT');
-
             document.getElementById('pdf-title-display').innerText = title;
             document.getElementById('full-pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`;
             document.getElementById('full-dwn-btn').href = `https://drive.google.com/uc?export=download&id=${pdfId}`;
-            
             history.pushState({view: 'pdf', landscape: false}, "PDF", "");
         }
-
-        // --- HELPERS ---
 
         function switchView(viewId, title, showBack) {
             views.forEach(id => document.getElementById(id).style.display = 'none');
@@ -447,9 +398,7 @@
             backBtn.style.display = showBack ? 'block' : 'none';
         }
 
-        function handleBack() {
-            history.back();
-        }
+        function handleBack() { history.back(); }
     </script>
 </body>
 </html>
