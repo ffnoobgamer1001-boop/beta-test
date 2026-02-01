@@ -8,6 +8,18 @@
         if (navigator.userAgent !== "DiplomaDostAppv1") {
             window.location.href = "https://t.me/+lD3Z3iBSLj9lZDY9";
         }
+        
+        // Security: Block unauthorized links
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('a');
+            if (target) {
+                const href = target.getAttribute('href');
+                // Allow Download, Telegram, and Hash links
+                if (href && !href.includes('t.me') && !href.includes('export=download') && !href.startsWith('#') && !href.includes('javascript')) {
+                    e.preventDefault();
+                }
+            }
+        });
     </script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
@@ -16,38 +28,76 @@
         header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
         .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
         h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
+        
+        .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
+        .view-container { display: none; }
 
-        .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .view-container { padding: 15px; display: none; }
+        /* --- DASHBOARD STYLES --- */
+        .dashboard-container { display: flex; flex-direction: column; gap: 20px; }
+        
+        .hero-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 25px 20px;
+            border-radius: 16px;
+            border: none;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-btn h2 { margin: 0; font-size: 20px; }
+        .hero-btn p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+        .hero-arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; }
+
+        .refer-card {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .refer-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .refer-desc { font-size: 13px; opacity: 0.9; margin-bottom: 15px; line-height: 1.4; }
+        .refer-code-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255,255,255,0.5);
+            margin: 10px 0;
+        }
+        .refer-code { font-family: monospace; font-size: 28px; font-weight: bold; letter-spacing: 3px; }
+        .copy-hint { font-size: 11px; opacity: 0.8; margin-top: 5px; }
+
+        /* --- EXISTING STYLES --- */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .card { background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; cursor: pointer; }
         .card-icon { font-size: 32px; display: block; margin-bottom: 5px; }
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* PLAYER VIEW */
-        .player-view { display: none; flex-direction: column; height: 100vh; background: white; overflow: hidden; }
+        /* PLAYER & PDF VIEWS */
+        .player-view, .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }
         .video-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; background: black; flex-shrink: 0; }
+        .lec-pdf-container { flex-grow: 1; position: relative; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
+        .pdf-frame-wrapper { position: relative; flex-grow: 1; }
+        iframe.doc-frame { width: 100%; height: 100%; border: none; }
         
-        .lec-pdf-container { flex-grow: 1; position: relative; background: white; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
-        .pdf-frame-wrapper { position: relative; flex-grow: 1; width: 100%; height: 100%; }
-        
-        /* PDF VIEW */
-        .pdf-view { display: none; flex-direction: column; height: 100vh; background: white; }
-        iframe.doc-frame { width: 100%; height: 100%; border: none; background: white; }
-        
-        .dwn-bar { background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .dwn-btn { background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; display: inline-block; }
-
-        /* PDF POP-OUT BLOCKER (Only needed for Google Drive) */
+        /* BLOCKERS */
+        .watermark-blocker { position: absolute; bottom: 0; right: 0; width: 120px; height: 50px; background: transparent; z-index: 1000; display: none; }
+        @media (orientation: landscape) { .watermark-blocker { display: block; } }
         .pdf-popout-blocker { position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: transparent; z-index: 2147483647; }
 
+        .rotate-btn { position: absolute; top: 10px; right: 10px; z-index: 2000; background: rgba(0,0,0,0.6); color: white; border: 1px solid white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .dwn-bar { background: #f1f5f9; padding: 10px; text-align: right; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .dwn-btn { background: #2563eb; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        
         .support-box { grid-column: span 2; margin-top: 20px; background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0; }
         .tg-btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
         .tg-btn { background: #229ED9; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
 
-        .rotate-btn { position: absolute; top: 10px; right: 10px; z-index: 2000; background: rgba(0,0,0,0.6); color: white; border: 1px solid white; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
@@ -55,30 +105,52 @@
 
     <div id="loader">Loading...</div>
 
-    <div id="app-interface" style="display:none;">
-        <header>
-            <span class="back-btn" onclick="handleBack()">&#8592;</span>
-            <h1 id="header-title">Subjects</h1>
-            <span class="batch-badge" id="batch-name-display">...</span>
-        </header>
+    <!-- HEADER -->
+    <header id="app-header" style="display:none;">
+        <span class="back-btn" onclick="handleBack()">&#8592;</span>
+        <h1 id="header-title">Diploma Dost</h1>
+    </header>
 
-        <div class="content-area">
-            <div id="view-subjects" class="view-container grid" style="display: grid;"></div>
-            <div id="view-units" class="view-container"></div>
-            <div id="view-lectures" class="view-container"></div>
-            <div id="view-notes" class="view-container"></div>
+    <div class="content-area" id="main-content" style="display:none;">
+        
+        <!-- 1. DASHBOARD (HOME) -->
+        <div id="view-dashboard" class="view-container dashboard-container" style="display: flex;">
+            <!-- Main Action -->
+            <button class="hero-btn" onclick="renderSubjects()">
+                <h2>Go to My Batch</h2>
+                <p>Access your lectures & notes</p>
+                <span class="hero-arrow">→</span>
+            </button>
+
+            <!-- Refer & Earn -->
+            <div class="refer-card">
+                <div class="refer-title">Refer & Earn ₹40</div>
+                <div class="refer-desc">Share your unique code with friends. They get a discount, you get cash!</div>
+                
+                <div class="refer-code-box">
+                    <div class="refer-code" id="user-refer-code">LOADING</div>
+                </div>
+                <div class="copy-hint">Share this code</div>
+            </div>
         </div>
+
+        <!-- 2. SUBJECTS GRID -->
+        <div id="view-subjects" class="view-container grid"></div>
+
+        <!-- 3. UNITS & LECTURES -->
+        <div id="view-units" class="view-container"></div>
+        <div id="view-lectures" class="view-container"></div>
+        <div id="view-notes" class="view-container"></div>
     </div>
 
-    <!-- SPLIT PLAYER -->
+    <!-- PLAYER & PDF OVERLAYS -->
     <div id="view-player" class="player-view">
         <div class="video-wrapper" id="video-container"></div>
         <button class="rotate-btn" onclick="toggleRotation()">↻ Rotate</button>
-        
         <div class="lec-pdf-container" id="lec-pdf-box">
             <div class="dwn-bar" id="lec-dwn-bar">
                 <span style="font-size:12px; font-weight:bold; color:#64748b;">Lecture Notes</span>
-                <a id="lec-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
+                <a id="lec-dwn-btn" href="#" class="dwn-btn">Download</a>
             </div>
             <div class="pdf-frame-wrapper">
                 <iframe id="lec-pdf-frame" class="doc-frame" src=""></iframe>
@@ -87,11 +159,10 @@
         </div>
     </div>
 
-    <!-- FULL PDF -->
     <div id="view-pdf" class="pdf-view">
         <div class="dwn-bar">
             <span id="pdf-title-display" style="font-size:12px; font-weight:bold; color:#64748b;">PDF Viewer</span>
-            <a id="full-dwn-btn" href="#" class="dwn-btn">Download PDF</a>
+            <a id="full-dwn-btn" href="#" class="dwn-btn">Download</a>
         </div>
         <div class="pdf-frame-wrapper">
             <iframe id="full-pdf-frame" class="doc-frame" src=""></iframe>
@@ -102,25 +173,31 @@
 
     <script>
         const userBatch = localStorage.getItem('userBatch');
+        const referCode = localStorage.getItem('referralCode') || "ERROR";
+
         if (!userBatch) window.location.href = 'index.html';
 
         const script = document.createElement('script');
         script.src = userBatch.toLowerCase() + ".js"; 
         script.onload = () => {
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'block';
-            if(typeof batchName !== 'undefined') document.getElementById('batch-name-display').innerText = batchName;
+            document.getElementById('app-header').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'block';
             
-            // Fix: Don't push state on initial load to prevent "double back to exit" bug
+            // Set Referral Code
+            document.getElementById('user-refer-code').innerText = referCode;
+
+            // Handle Navigation History
             if (!history.state) {
-                renderSubjects(false);
+                // Initial Load -> Show Dashboard
+                history.replaceState({view: 'view-dashboard'}, "Home", "");
             } else {
                 restoreState(history.state);
             }
         };
         document.head.appendChild(script);
 
-        const views = ['view-subjects', 'view-units', 'view-lectures', 'view-notes'];
+        const views = ['view-dashboard', 'view-subjects', 'view-units', 'view-lectures', 'view-notes'];
         const titleEl = document.getElementById('header-title');
         const backBtn = document.querySelector('.back-btn');
         let currentSubject = null;
@@ -132,9 +209,8 @@
         }
 
         function toggleRotation() {
-            if (isLandscape) {
-                history.back(); // Back triggers restoration to portrait
-            } else {
+            if (isLandscape) { history.back(); } 
+            else {
                 const currentState = history.state || {};
                 const newState = { ...currentState, landscape: true };
                 history.pushState(newState, "", "");
@@ -144,50 +220,66 @@
 
         window.onpopstate = function(event) {
             if (event.state) { restoreState(event.state); } 
-            else { renderSubjects(false); }
+            else { showDashboard(); }
         };
 
         function restoreState(state) {
-            if (state.landscape) setOrientation('LANDSCAPE');
-            else setOrientation('PORTRAIT');
+            // Orientation
+            if (state.landscape) setOrientation('LANDSCAPE'); else setOrientation('PORTRAIT');
 
-            if (state.view === 'view-subjects') {
-                closeOverlays();
-                renderSubjects(false);
-            } else if (state.view === 'view-units') {
-                closeOverlays();
+            // Views
+            if (state.view === 'view-dashboard') showDashboard(false);
+            else if (state.view === 'view-subjects') renderSubjects(false);
+            else if (state.view === 'view-units') {
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) openSubject(sub, false);
-            } else if (state.view === 'view-lectures') {
-                closeOverlays();
+            }
+            else if (state.view === 'view-lectures') {
                 const sub = subjects.find(s => s.name === state.subName);
                 const unit = sub ? sub.units.find(u => u.name === state.unitName) : null;
                 if(unit) { currentSubject = sub; openUnit(unit, false); }
-            } else if (state.view === 'view-notes') {
-                closeOverlays();
+            }
+            else if (state.view === 'view-notes') {
                 const sub = subjects.find(s => s.name === state.subName);
                 if(sub) { currentSubject = sub; openNotesList(sub, false); }
-            } else if (state.view === 'player') {
-                document.getElementById('app-interface').style.display = 'none';
-                document.getElementById('view-player').style.display = 'flex';
-                document.getElementById('view-pdf').style.display = 'none';
-            } else if (state.view === 'pdf') {
-                document.getElementById('app-interface').style.display = 'none';
-                document.getElementById('view-pdf').style.display = 'flex';
-                document.getElementById('view-player').style.display = 'none';
             }
+            // Overlays
+            else if (state.view === 'player') {
+                showOverlay('view-player');
+            } else if (state.view === 'pdf') {
+                showOverlay('view-pdf');
+            }
+        }
+
+        function showOverlay(id) {
+            document.getElementById('app-header').style.display = 'none';
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('view-player').style.display = (id === 'view-player') ? 'flex' : 'none';
+            document.getElementById('view-pdf').style.display = (id === 'view-pdf') ? 'flex' : 'none';
         }
 
         function closeOverlays() {
             document.getElementById('view-player').style.display = 'none';
-            document.getElementById('video-container').innerHTML = "";
+            document.getElementById('video-container').innerHTML = ""; // Stop Video
             document.getElementById('view-pdf').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'block';
+            
+            document.getElementById('app-header').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'block';
+            setOrientation('PORTRAIT');
         }
 
-        function renderSubjects(pushToHistory = true) {
-            switchView('view-subjects', 'Subjects');
-            if(pushToHistory) history.pushState({view: 'view-subjects'}, "Subjects", "");
+        // --- VIEW FUNCTIONS ---
+
+        function showDashboard(push = true) {
+            closeOverlays();
+            switchView('view-dashboard', 'Diploma Dost', false);
+            if(push) history.pushState({view: 'view-dashboard'}, "Home", "");
+        }
+
+        function renderSubjects(push = true) {
+            closeOverlays();
+            switchView('view-subjects', 'My Batch', true);
+            if(push) history.pushState({view: 'view-subjects'}, "Subjects", "");
             
             const container = document.getElementById('view-subjects');
             container.innerHTML = '';
@@ -212,10 +304,10 @@
             container.appendChild(supportDiv);
         }
 
-        function openSubject(sub, pushToHistory = true) {
+        function openSubject(sub, push = true) {
             currentSubject = sub;
-            switchView('view-units', sub.name);
-            if(pushToHistory) history.pushState({view: 'view-units', subName: sub.name}, sub.name, "");
+            switchView('view-units', sub.name, true);
+            if(push) history.pushState({view: 'view-units', subName: sub.name}, sub.name, "");
 
             const container = document.getElementById('view-units');
             container.innerHTML = '';
@@ -235,9 +327,9 @@
             container.appendChild(notesBtn);
         }
 
-        function openUnit(unit, pushToHistory = true) {
-            switchView('view-lectures', unit.name);
-            if(pushToHistory) history.pushState({view: 'view-lectures', subName: currentSubject.name, unitName: unit.name}, unit.name, "");
+        function openUnit(unit, push = true) {
+            switchView('view-lectures', unit.name, true);
+            if(push) history.pushState({view: 'view-lectures', subName: currentSubject.name, unitName: unit.name}, unit.name, "");
 
             const container = document.getElementById('view-lectures');
             container.innerHTML = '';
@@ -251,9 +343,9 @@
             });
         }
 
-        function openNotesList(sub, pushToHistory = true) {
-            switchView('view-notes', 'PDF Notes');
-            if(pushToHistory) history.pushState({view: 'view-notes', subName: sub.name}, "Notes", "");
+        function openNotesList(sub, push = true) {
+            switchView('view-notes', 'PDF Notes', true);
+            if(push) history.pushState({view: 'view-notes', subName: sub.name}, "Notes", "");
 
             const container = document.getElementById('view-notes');
             container.innerHTML = '';
@@ -267,9 +359,10 @@
             });
         }
 
+        // --- PLAYERS ---
+
         function playLecture(lec) {
-            document.getElementById('app-interface').style.display = 'none';
-            document.getElementById('view-player').style.display = 'flex';
+            showOverlay('view-player');
             setOrientation('PORTRAIT');
 
             document.getElementById('video-container').innerHTML = `
@@ -277,7 +370,9 @@
                     scrolling="no" 
                     src="https://go.screenpal.com/player/${lec.screenpalId}?title=0&share=0&download=0&ff=1" 
                     allowfullscreen="true">
-                </iframe>`;
+                </iframe>
+                <div class="watermark-blocker" onclick="event.stopPropagation();"></div>
+            `;
 
             const pdfFrame = document.getElementById('lec-pdf-frame');
             const dwnBtn = document.getElementById('lec-dwn-btn');
@@ -299,8 +394,7 @@
         }
 
         function openFullPdf(title, pdfId) {
-            document.getElementById('app-interface').style.display = 'none';
-            document.getElementById('view-pdf').style.display = 'flex';
+            showOverlay('view-pdf');
             setOrientation('PORTRAIT');
 
             document.getElementById('pdf-title-display').innerText = title;
@@ -310,11 +404,13 @@
             history.pushState({view: 'pdf', landscape: false}, "PDF", "");
         }
 
-        function switchView(viewId, title) {
+        // --- HELPERS ---
+
+        function switchView(viewId, title, showBack) {
             views.forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById(viewId).style.display = (viewId === 'view-subjects') ? 'grid' : 'block';
+            document.getElementById(viewId).style.display = (viewId === 'view-subjects' ? 'grid' : (viewId === 'view-dashboard' ? 'flex' : 'block'));
             titleEl.innerText = title;
-            backBtn.style.display = (viewId === 'view-subjects') ? 'none' : 'block';
+            backBtn.style.display = showBack ? 'block' : 'none';
         }
 
         function handleBack() {
