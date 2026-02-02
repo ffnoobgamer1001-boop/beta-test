@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diploma Dost</title>
     
-    <!-- 1. Plyr CSS -->
+    <!-- PLYR CSS -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
     <script>
@@ -23,23 +23,23 @@
         });
     </script>
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --plyr-color-main: #2563eb; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); user-select: none; height: 100vh; overflow: hidden; }
         
         header { background: white; padding: 15px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; height: 50px;}
         .back-btn { font-size: 24px; padding: 0 15px 0 0; cursor: pointer; color: var(--primary); display: none; }
         h1 { margin: 0; font-size: 18px; font-weight: 700; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .batch-badge { background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; border: 1px solid #dbeafe; }
-
+        
         .content-area { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
         .view-container { display: none; }
 
-        /* DASHBOARD STYLES */
+        /* DASHBOARD */
         .dashboard-container { display: flex; flex-direction: column; gap: 20px; }
         .hero-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 25px 20px; border-radius: 16px; border: none; text-align: left; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); cursor: pointer; position: relative; overflow: hidden; }
         .hero-btn h2 { margin: 0; font-size: 20px; }
         .hero-btn p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
         .hero-arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; }
+        
         .refer-card { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); color: white; padding: 25px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
         .refer-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
         .refer-desc { font-size: 13px; opacity: 0.9; margin-bottom: 15px; line-height: 1.4; }
@@ -54,24 +54,26 @@
         .list-btn { width: 100%; background: white; padding: 18px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; }
         .notes-section-btn { margin-top: 20px; background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
 
-        /* --- PLAYER STYLES (YOUR PLYR CODE) --- */
+        /* PLAYER STYLES */
         .player-view { display: none; flex-direction: column; height: 100vh; background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 100; overflow: hidden; }
         
-        .video-wrapper {
+        .video-container-wrapper {
             width: 100%;
-            /* Keep it max 100% so it fits screen width, let height adjust */
-            max-width: 100%; 
-            margin: 0 auto;
             background: #000;
-            aspect-ratio: 16/9;
-            overflow: hidden;
             position: relative;
             flex-shrink: 0;
         }
 
-        /* Custom Player Colors */
+        .player-wrapper {
+            width: 100%;
+            margin: 0 auto;
+            background: #000;
+            aspect-ratio: 16/9;
+            position: relative;
+        }
+
         .plyr {
-            --plyr-color-main: #3b82f6;
+            --plyr-color-main: #3b82f6; 
             --plyr-video-background: #000000;
             --plyr-menu-background: #1a1a1a;
             --plyr-menu-color: #ffffff;
@@ -79,13 +81,20 @@
             height: 100%;
         }
 
-        /* THE HACK: Hides YouTube Title & Branding */
         .plyr__video-embed iframe {
             top: -50%;
             height: 200%;
         }
 
-        /* PDF & Other UI */
+        /* --- BLACK MASK TO HIDE RED FLASH --- */
+        #loading-mask {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: black;
+            z-index: 50; /* Above iframe, below controls */
+            display: none;
+        }
+
         .lec-pdf-container { flex-grow: 1; position: relative; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
         .pdf-frame-wrapper { position: relative; flex-grow: 1; }
         iframe.doc-frame { width: 100%; height: 100%; border: none; }
@@ -117,7 +126,6 @@
 
     <div id="loader">Loading...</div>
 
-    <!-- PLYR JS LIBRARY -->
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
     <div id="logout-modal" class="modal-overlay">
@@ -166,11 +174,13 @@
         <div id="view-notes" class="view-container"></div>
     </div>
 
-    <!-- PLAYER -->
     <div id="view-player" class="player-view">
-        <div class="video-wrapper">
-            <!-- Plyr will inject here -->
-            <div id="player" data-plyr-provider="youtube" data-plyr-embed-id=""></div>
+        <div class="video-container-wrapper">
+            <div class="player-wrapper">
+                <div id="player" data-plyr-provider="youtube" data-plyr-embed-id=""></div>
+                <!-- Black Mask -->
+                <div id="loading-mask"></div>
+            </div>
         </div>
         
         <button class="rotate-btn" onclick="toggleRotation()">↻ Rotate</button>
@@ -187,7 +197,6 @@
         </div>
     </div>
 
-    <!-- PDF -->
     <div id="view-pdf" class="pdf-view">
         <div class="dwn-bar">
             <span id="pdf-title-display" style="font-size:12px; font-weight:bold; color:#64748b;">PDF Viewer</span>
@@ -270,16 +279,38 @@
             setOrientation('PORTRAIT');
         }
 
-        // --- PLAYERS ---
+        function logout() { document.getElementById('logout-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('logout-modal').style.display = 'none'; }
+        function confirmLogout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        function showDashboard(push = true) { closeOverlays(); switchView('view-dashboard', 'Diploma Dost', false); if(push) history.pushState({view: 'view-dashboard'}, "Home", ""); }
+        function renderSubjects(push = true) { closeOverlays(); switchView('view-subjects', 'My Batch', true); if(push) history.pushState({view: 'view-subjects'}, "Subjects", ""); const container = document.getElementById('view-subjects'); container.innerHTML = ''; subjects.forEach(sub => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<span class="card-icon">${sub.icon}</span><div>${sub.name}</div>`; card.onclick = () => openSubject(sub); container.appendChild(card); }); }
+        function openSubject(sub, push = true) { currentSubject = sub; switchView('view-units', sub.name, true); if(push) history.pushState({view: 'view-units', subName: sub.name}, sub.name, ""); const container = document.getElementById('view-units'); container.innerHTML = ''; if(sub.units) sub.units.forEach(unit => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>📂 ${unit.name}</span> <span>›</span>`; btn.onclick = () => openUnit(unit); container.appendChild(btn); }); const notesBtn = document.createElement('button'); notesBtn.className = 'list-btn notes-section-btn'; notesBtn.innerHTML = `<span>📄 PDF Notes Section</span> <span>›</span>`; notesBtn.onclick = () => openNotesList(sub); container.appendChild(notesBtn); }
+        function openUnit(unit, push = true) { switchView('view-lectures', unit.name, true); if(push) history.pushState({view: 'view-lectures', subName: currentSubject.name, unitName: unit.name}, unit.name, ""); const container = document.getElementById('view-lectures'); container.innerHTML = ''; if(unit.lectures) unit.lectures.forEach(lec => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>▶ ${lec.title}</span>`; btn.onclick = () => playLecture(lec); container.appendChild(btn); }); }
+        function openNotesList(sub, push = true) { switchView('view-notes', 'PDF Notes', true); if(push) history.pushState({view: 'view-notes', subName: sub.name}, "Notes", ""); const container = document.getElementById('view-notes'); container.innerHTML = ''; if(sub.notes) sub.notes.forEach(note => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>📑 ${note.title}</span>`; btn.onclick = () => openFullPdf(note.title, note.pdfId); container.appendChild(btn); }); }
+        function openFullPdf(title, pdfId) { showOverlay('view-pdf'); setOrientation('PORTRAIT'); document.getElementById('pdf-title-display').innerText = title; document.getElementById('full-pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`; document.getElementById('full-dwn-btn').href = `https://drive.google.com/uc?export=download&id=${pdfId}`; history.pushState({view: 'pdf', landscape: false}, "PDF", ""); }
+        function switchView(viewId, title, showBack) { views.forEach(id => document.getElementById(id).style.display = 'none'); document.getElementById(viewId).style.display = (viewId === 'view-subjects' ? 'grid' : (viewId === 'view-dashboard' ? 'flex' : 'block')); titleEl.innerText = title; backBtn.style.display = showBack ? 'block' : 'none'; }
+        function handleBack() { history.back(); }
+
         function playLecture(lec) {
             showOverlay('view-player');
             setOrientation('PORTRAIT');
 
-            // 1. Reset Container
+            // Reset container
             const container = document.querySelector('.video-wrapper');
-            container.innerHTML = `<div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${lec.youtubeId}"></div>`;
+            container.innerHTML = `
+                <div class="player-wrapper">
+                    <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${lec.youtubeId}"></div>
+                    <!-- Mask for hiding red flash -->
+                    <div id="loading-mask"></div>
+                </div>`;
 
-            // 2. Initialize Plyr
+            // Mask Logic
+            const mask = document.getElementById('loading-mask');
+            mask.style.display = 'block';
+            setTimeout(() => { mask.style.display = 'none'; }, 2500); // 2.5s hide duration
+
+            // Plyr
             if (currentPlayer) currentPlayer.destroy();
             currentPlayer = new Plyr('#player', {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
@@ -290,7 +321,7 @@
                 clickToPlay: true
             });
 
-            // 3. Handle PDF
+            // PDF Logic
             const pdfFrame = document.getElementById('lec-pdf-frame');
             const dwnBtn = document.getElementById('lec-dwn-btn');
             const dwnBar = document.getElementById('lec-dwn-bar');
@@ -304,19 +335,6 @@
             }
             history.pushState({view: 'player', landscape: false}, "Video", "");
         }
-
-        // ... (Rest of navigation functions remain same as previous response) ...
-        function logout() { document.getElementById('logout-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('logout-modal').style.display = 'none'; }
-        function confirmLogout() { localStorage.clear(); window.location.href = 'index.html'; }
-        function showDashboard(push = true) { closeOverlays(); switchView('view-dashboard', 'Diploma Dost', false); if(push) history.pushState({view: 'view-dashboard'}, "Home", ""); }
-        function renderSubjects(push = true) { closeOverlays(); switchView('view-subjects', 'My Batch', true); if(push) history.pushState({view: 'view-subjects'}, "Subjects", ""); const container = document.getElementById('view-subjects'); container.innerHTML = ''; subjects.forEach(sub => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<span class="card-icon">${sub.icon}</span><div>${sub.name}</div>`; card.onclick = () => openSubject(sub); container.appendChild(card); }); }
-        function openSubject(sub, push = true) { currentSubject = sub; switchView('view-units', sub.name, true); if(push) history.pushState({view: 'view-units', subName: sub.name}, sub.name, ""); const container = document.getElementById('view-units'); container.innerHTML = ''; if(sub.units) sub.units.forEach(unit => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>📂 ${unit.name}</span> <span>›</span>`; btn.onclick = () => openUnit(unit); container.appendChild(btn); }); const notesBtn = document.createElement('button'); notesBtn.className = 'list-btn notes-section-btn'; notesBtn.innerHTML = `<span>📄 PDF Notes Section</span> <span>›</span>`; notesBtn.onclick = () => openNotesList(sub); container.appendChild(notesBtn); }
-        function openUnit(unit, push = true) { switchView('view-lectures', unit.name, true); if(push) history.pushState({view: 'view-lectures', subName: currentSubject.name, unitName: unit.name}, unit.name, ""); const container = document.getElementById('view-lectures'); container.innerHTML = ''; if(unit.lectures) unit.lectures.forEach(lec => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>▶ ${lec.title}</span>`; btn.onclick = () => playLecture(lec); container.appendChild(btn); }); }
-        function openNotesList(sub, push = true) { switchView('view-notes', 'PDF Notes', true); if(push) history.pushState({view: 'view-notes', subName: sub.name}, "Notes", ""); const container = document.getElementById('view-notes'); container.innerHTML = ''; if(sub.notes) sub.notes.forEach(note => { const btn = document.createElement('button'); btn.className = 'list-btn'; btn.innerHTML = `<span>📑 ${note.title}</span>`; btn.onclick = () => openFullPdf(note.title, note.pdfId); container.appendChild(btn); }); }
-        function openFullPdf(title, pdfId) { showOverlay('view-pdf'); setOrientation('PORTRAIT'); document.getElementById('pdf-title-display').innerText = title; document.getElementById('full-pdf-frame').src = `https://drive.google.com/file/d/${pdfId}/preview`; document.getElementById('full-dwn-btn').href = `https://drive.google.com/uc?export=download&id=${pdfId}`; history.pushState({view: 'pdf', landscape: false}, "PDF", ""); }
-        function switchView(viewId, title, showBack) { views.forEach(id => document.getElementById(id).style.display = 'none'); document.getElementById(viewId).style.display = (viewId === 'view-subjects' ? 'grid' : (viewId === 'view-dashboard' ? 'flex' : 'block')); titleEl.innerText = title; backBtn.style.display = showBack ? 'block' : 'none'; }
-        function handleBack() { history.back(); }
     </script>
 </body>
 </html>
